@@ -3,110 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plan de salle - Bal des finissants</title>
+  <title>Recherche de finissant</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
     }
     h1 {
-      margin-bottom: 30px;
+      text-align: center;
+      padding: 20px;
     }
-    .room {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      max-width: 1400px;
+    .search-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 10px;
       position: relative;
     }
-    .row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
+    input[type="text"] {
       width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
     }
-    .row:nth-child(even) {
-      margin-left: 50px;
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      border-radius: 0 0 5px 5px;
+    }
+    .autocomplete-item {
+      padding: 10px;
+      cursor: pointer;
+    }
+    .autocomplete-item:hover {
+      background-color: #eee;
+    }
+    button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 5px;
+    }
+    #floorplan-container {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: auto;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    #floorplan {
+      width: 1000px;
+      height: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
     }
     .table {
-      background-color: #fff;
-      border: 2px solid #333;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      width: 70px;
-      height: 70px;
+      background-color: #ccc;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 12px;
+    }
+    .highlight {
+      background-color: lime !important;
       font-weight: bold;
-      margin: 15px;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-    }
-    .student-list {
-      margin-top: 40px;
-      width: 100%;
-      max-width: 800px;
-    }
-    .student-list h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .student-list ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    .student-list li {
-      padding: 5px 0;
     }
   </style>
 </head>
 <body>
-  <h1>Plan de salle - Bal des finissants</h1>
-  <div class="room" id="room"></div>
+  <h1>Recherche de finissant</h1>
+  <div class="search-container">
+    <input type="text" id="search" placeholder="Tapez un nom...">
+    <div id="autocomplete-list" class="autocomplete-list"></div>
+    <button id="search-button">OK</button>
+  </div>
 
-  <div class="student-list">
-    <h2>Liste des finissants par tables</h2>
-    <ul id="students"></ul>
+  <div id="floorplan-container">
+    <div id="floorplan"></div>
   </div>
 
   <script>
-    const room = document.getElementById('room');
-    const studentsList = document.getElementById('students');
-    const totalTables = 115;
-    const tablesPerRow = 10;
-    let count = 1;
+    const fallbackData = [
+      { name: "Alex Tremblay", table: 1 },
+      { name: "Camille Gagnon", table: 2 },
+      { name: "Léa Roy", table: 3 },
+      { name: "Julien Bouchard", table: 4 },
+      { name: "Émile Morin", table: 5 },
+      { name: "Noémie Gauthier", table: 6 },
+      { name: "Maxime Lévesque", table: 7 },
+      { name: "Chloé Côté", table: 8 },
+      { name: "Lucas Fortin", table: 9 },
+      { name: "Sophie Beaulieu", table: 10 }
+    ];
 
-    const firstNames = ["Alex", "Camille", "Léa", "Julien", "Émile", "Noémie", "Maxime", "Chloé", "Lucas", "Sophie"];
-    const lastNames = ["Tremblay", "Gagnon", "Roy", "Bouchard", "Morin", "Gauthier", "Lévesque", "Côté", "Fortin", "Beaulieu"];
+    let data = fallbackData;
 
-    function randomName() {
-      const first = firstNames[Math.floor(Math.random() * firstNames.length)];
-      const last = lastNames[Math.floor(Math.random() * lastNames.length)];
-      return `${first} ${last}`;
+    // Génération du plan de salle fixe avec 115 tables
+    const floorplan = document.getElementById("floorplan");
+    for (let i = 1; i <= 115; i++) {
+      const div = document.createElement("div");
+      div.className = "table";
+      div.textContent = i;
+      div.dataset.tableId = i;
+      floorplan.appendChild(div);
     }
 
-    while (count <= totalTables) {
-      const row = document.createElement('div');
-      row.className = 'row';
-      for (let i = 0; i < tablesPerRow && count <= totalTables; i++) {
-        const table = document.createElement('div');
-        table.className = 'table';
-        table.textContent = count;
-        row.appendChild(table);
+    const input = document.getElementById('search');
+    const autocompleteList = document.getElementById('autocomplete-list');
+    const searchButton = document.getElementById('search-button');
 
-        const listItem = document.createElement('li');
-        listItem.textContent = `Table ${count}: ${randomName()}, ${randomName()}`;
-        studentsList.appendChild(listItem);
+    input.addEventListener('input', () => {
+      const value = input.value.toLowerCase();
+      autocompleteList.innerHTML = '';
+      if (!value) return;
 
-        count++;
+      const filtered = data.filter(entry => entry.name.toLowerCase().includes(value));
+      filtered.forEach(entry => {
+        const item = document.createElement('div');
+        item.className = 'autocomplete-item';
+        item.textContent = entry.name;
+        item.addEventListener('click', () => {
+          input.value = entry.name;
+          autocompleteList.innerHTML = '';
+        });
+        autocompleteList.appendChild(item);
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-container')) {
+        autocompleteList.innerHTML = '';
       }
-      room.appendChild(row);
-    }
+    });
+
+    searchButton.addEventListener('click', () => {
+      const name = input.value;
+      const match = data.find(entry => entry.name === name);
+
+      // Reset highlight
+      document.querySelectorAll('.table').forEach(div => div.classList.remove('highlight'));
+
+      if (match) {
+        const tableEl = document.querySelector(`.table[data-table-id="${match.table}"]`);
+        if (tableEl) tableEl.classList.add('highlight');
+      }
+    });
   </script>
 </body>
 </html>
-

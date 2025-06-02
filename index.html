@@ -15,6 +15,13 @@
       text-align: center;
       padding: 20px;
     }
+    .search-section, .floorplan-section {
+      display: none;
+      transition: all 0.3s ease-in-out;
+    }
+    .search-section.active, .floorplan-section.active {
+      display: block;
+    }
     .search-container {
       max-width: 400px;
       margin: 0 auto;
@@ -61,8 +68,7 @@
     }
     #floorplan-container {
       width: 100%;
-      overflow-x: auto;
-      overflow-y: auto;
+      overflow: auto;
       padding: 10px;
       box-sizing: border-box;
     }
@@ -92,14 +98,19 @@
 </head>
 <body>
   <h1>Recherche de finissant</h1>
-  <div class="search-container">
-    <input type="text" id="search" placeholder="Tapez un nom...">
-    <div id="autocomplete-list" class="autocomplete-list"></div>
-    <button id="search-button">OK</button>
+
+  <div class="search-section active">
+    <div class="search-container">
+      <input type="text" id="search" placeholder="Tapez un nom...">
+      <div id="autocomplete-list" class="autocomplete-list"></div>
+      <button id="search-button">OK</button>
+    </div>
   </div>
 
-  <div id="floorplan-container">
-    <div id="floorplan"></div>
+  <div class="floorplan-section" id="floorplan-section">
+    <div id="floorplan-container">
+      <div id="floorplan"></div>
+    </div>
   </div>
 
   <script>
@@ -118,7 +129,6 @@
 
     let data = fallbackData;
 
-    // Génération du plan de salle fixe avec 115 tables
     const floorplan = document.getElementById("floorplan");
     for (let i = 1; i <= 115; i++) {
       const div = document.createElement("div");
@@ -166,6 +176,10 @@
       if (match) {
         const tableEl = document.querySelector(`.table[data-table-id="${match.table}"]`);
         if (tableEl) tableEl.classList.add('highlight');
+
+        // Toggle display
+        document.querySelector('.search-section').classList.remove('active');
+        document.getElementById('floorplan-section').classList.add('active');
       }
     });
   </script>

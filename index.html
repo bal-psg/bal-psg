@@ -46,17 +46,48 @@
       margin: 15px;
       box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
     }
+    .student-list {
+      margin-top: 40px;
+      width: 100%;
+      max-width: 800px;
+    }
+    .student-list h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .student-list ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .student-list li {
+      padding: 5px 0;
+    }
   </style>
 </head>
 <body>
   <h1>Plan de salle - Bal des finissants</h1>
   <div class="room" id="room"></div>
 
+  <div class="student-list">
+    <h2>Liste des finissants par tables</h2>
+    <ul id="students"></ul>
+  </div>
+
   <script>
     const room = document.getElementById('room');
+    const studentsList = document.getElementById('students');
     const totalTables = 115;
     const tablesPerRow = 10;
     let count = 1;
+
+    const firstNames = ["Alex", "Camille", "Léa", "Julien", "Émile", "Noémie", "Maxime", "Chloé", "Lucas", "Sophie"];
+    const lastNames = ["Tremblay", "Gagnon", "Roy", "Bouchard", "Morin", "Gauthier", "Lévesque", "Côté", "Fortin", "Beaulieu"];
+
+    function randomName() {
+      const first = firstNames[Math.floor(Math.random() * firstNames.length)];
+      const last = lastNames[Math.floor(Math.random() * lastNames.length)];
+      return `${first} ${last}`;
+    }
 
     while (count <= totalTables) {
       const row = document.createElement('div');
@@ -66,6 +97,11 @@
         table.className = 'table';
         table.textContent = count;
         row.appendChild(table);
+
+        const listItem = document.createElement('li');
+        listItem.textContent = `Table ${count}: ${randomName()}, ${randomName()}`;
+        studentsList.appendChild(listItem);
+
         count++;
       }
       room.appendChild(row);

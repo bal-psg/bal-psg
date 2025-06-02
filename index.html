@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan de salle - Bal des finissants</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    .room {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 1400px;
+      position: relative;
+    }
+    .table {
+      background-color: #fff;
+      border: 2px solid #333;
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin: 15px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Plan de salle - Bal des finissants</h1>
+  <div class="room">
+    <script>
+      const container = document.querySelector('.room');
+      const totalTables = 115;
+      for (let i = 1; i <= totalTables; i++) {
+        const table = document.createElement('div');
+        table.className = 'table';
+        table.textContent = i;
+        container.appendChild(table);
+      }
+    </script>
+  </div>
+</body>
+</html>

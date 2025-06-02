@@ -18,11 +18,20 @@
     }
     .room {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
       width: 100%;
       max-width: 1400px;
       position: relative;
+    }
+    .row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .row:nth-child(even) {
+      margin-left: 50px;
     }
     .table {
       background-color: #fff;
@@ -41,17 +50,27 @@
 </head>
 <body>
   <h1>Plan de salle - Bal des finissants</h1>
-  <div class="room">
-    <script>
-      const container = document.querySelector('.room');
-      const totalTables = 115;
-      for (let i = 1; i <= totalTables; i++) {
+  <div class="room" id="room"></div>
+
+  <script>
+    const room = document.getElementById('room');
+    const totalTables = 115;
+    const tablesPerRow = 10;
+    let count = 1;
+
+    while (count <= totalTables) {
+      const row = document.createElement('div');
+      row.className = 'row';
+      for (let i = 0; i < tablesPerRow && count <= totalTables; i++) {
         const table = document.createElement('div');
         table.className = 'table';
-        table.textContent = i;
-        container.appendChild(table);
+        table.textContent = count;
+        row.appendChild(table);
+        count++;
       }
-    </script>
-  </div>
+      room.appendChild(row);
+    }
+  </script>
 </body>
 </html>
+

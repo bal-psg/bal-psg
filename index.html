@@ -135,7 +135,7 @@
     }
     
     .table-group.right {
-      grid-template-columns: repeat(9, 48px); /* Fixed column width */
+      grid-template-columns: repeat(10, 48px); /* Fixed column width */
       grid-template-rows: repeat(6, 48px); /* Fixed row height */
       width: auto; /* Let it size based on content */
     }
@@ -168,7 +168,7 @@
       width: 52px;
       height: 52px;
       font-size: 12px;
-      color: #69f542;
+      background: linear-gradient(135deg, #4a0e4e 0%, #6a1b9a 100%);
     }
     .table:hover {
       transform: scale(1.1);
@@ -235,8 +235,8 @@
     const floorplan = document.getElementById("floorplan");
     
     // Tables to remove (keeping their original positions empty)
-    //const tablesToRemove = [1, 46, 55, 64, 45, 54, 63, 71, 72, 73, 82, 118, 126, 99, 90, 81];
-    const tablesToRemove = []
+    const tablesToRemove = [1, 46, 55, 64, 45, 54, 63, 71, 72, 73, 82, 83, 92, 122, 123, 130, 131, 132];
+    //const tablesToRemove = []
     
     // Premier groupe (côté gauche) - 9x8 = 72 positions
     const group1 = document.createElement("div");
@@ -252,6 +252,12 @@
       } else {
         const div = document.createElement("div");
         div.className = "table";
+
+        const largeTables = [9, 18, 27, 36, 65, 66, 67, 68, 69, 70];
+        if (largeTables.includes(i)) {
+          div.classList.add("large");
+        }
+
         div.textContent = newTableNumber;
         div.dataset.tableId = newTableNumber;
         div.dataset.originalId = i; // Keep track of original position
@@ -268,7 +274,7 @@
     const group2 = document.createElement("div");
     group2.className = "table-group right";
     
-    for (let i = 73; i <= 126; i++) {
+    for (let i = 73; i <= 132; i++) {
       if (tablesToRemove.includes(i)) {
         // Create empty placeholder to maintain grid position
         const placeholder = document.createElement("div");
@@ -278,7 +284,7 @@
         const div = document.createElement("div");
         div.className = "table";
         
-        const largeTables = [8, 17, 26, 35, 58, 59, 60, 61, 62, 63, 69, 70, 75, 76, 77, 78, 83, 84, 85, 86, 91, 92, 93, 94, 95, 100, 101, 102, 103, 110];
+        const largeTables = [80, 81, 89, 90, 91, 93, 99, 100, 101, 102, 103, 109, 110, 111, 112, 113, 120, 121];
         if (largeTables.includes(i)) {
           div.classList.add("large");
         }

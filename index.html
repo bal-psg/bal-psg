@@ -11,7 +11,6 @@
       padding: 0;
       background-color: #1a1a1a;
       color: #ffffff;
-      min-height: 100vh;
     }
     h1 {
       text-align: center;
@@ -22,30 +21,13 @@
       margin: 0;
       background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     }
-    
-    /* Conteneur principal pour les sections */
-    .main-container {
-      width: 100%;
-    }
-    
     .search-section, .floorplan-section {
       display: none;
       transition: all 0.3s ease-in-out;
-      width: 100%;
-      min-height: calc(100vh - 120px);
     }
-    
     .search-section.active, .floorplan-section.active {
       display: block;
     }
-    
-    .section-separator {
-      height: 2px;
-      background: linear-gradient(90deg, transparent 0%, #d4af37 50%, transparent 100%);
-      margin: 20px 0;
-      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-    }
-    
     .search-container {
       max-width: 400px;
       margin: 50px auto;
@@ -122,62 +104,60 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(220, 20, 60, 0.4);
     }
-    
-
-    
     #floorplan-container {
       width: 100%;
-      height: 100%;
       overflow: auto;
       padding: 20px;
       box-sizing: border-box;
       background-color: #1a1a1a;
     }
     #floorplan {
-      width: 1000px;
+      width: 1200px; /* Increased from 1000px to accommodate both groups */
       height: auto;
       display: flex;
       align-items: flex-start;
-      gap: 50px;
+      gap: 30px; /* Reduced gap to make more space */
       margin: 0 auto;
       justify-content: center;
     }
     
     .table-group {
       display: grid;
-      gap: 10px;
+      gap: 8px; /* Reduced gap between tables */
       justify-content: center;
-      width: 450px;
+      flex-shrink: 0; /* Prevent shrinking */
     }
     
     .table-group.left {
-      grid-template-columns: repeat(9, 1fr);
-      grid-template-rows: repeat(8, 1fr);
+      grid-template-columns: repeat(9, 48px); /* Fixed column width */
+      grid-template-rows: repeat(8, 48px); /* Fixed row height */
+      width: auto; /* Let it size based on content */
     }
     
     .table-group.right {
-      grid-template-columns: repeat(9, 1fr);
-      grid-template-rows: repeat(6, 1fr);
+      grid-template-columns: repeat(9, 48px); /* Fixed column width */
+      grid-template-rows: repeat(6, 48px); /* Fixed row height */
+      width: auto; /* Let it size based on content */
     }
     
     .group-separator {
       width: 3px;
-      height: 600px;
+      height: 450px; /* Reduced height to match table area */
       background: linear-gradient(180deg, transparent 0%, #d4af37 20%, #dc143c 50%, #d4af37 80%, transparent 100%);
       border-radius: 2px;
       box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-      align-self: stretch;
+      flex-shrink: 0; /* Prevent shrinking */
     }
     .table {
-      width: 50px;
-      height: 50px;
+      width: 46px; /* Slightly smaller to fit better */
+      height: 46px;
       border-radius: 50%;
       background: linear-gradient(135deg, #333333 0%, #2d2d2d 100%);
       border: 2px solid #d4af37;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 11px; /* Slightly smaller font */
       font-weight: bold;
       color: #d4af37;
       transition: all 0.3s ease;
@@ -185,9 +165,9 @@
     }
     
     .table.large {
-      width: 56px;
-      height: 56px;
-      font-size: 13px;
+      width: 52px;
+      height: 52px;
+      font-size: 12px;
     }
     .table:hover {
       transform: scale(1.1);
@@ -221,21 +201,17 @@
 <body>
   <h1>Recherche de finissant</h1>
 
-  <div class="main-container">
-    <div class="search-section active">
-      <div class="search-container">
-        <input type="text" id="search" placeholder="Tapez un nom...">
-        <div id="autocomplete-list" class="autocomplete-list"></div>
-        <button id="search-button">OK</button>
-      </div>
+  <div class="search-section active">
+    <div class="search-container">
+      <input type="text" id="search" placeholder="Tapez un nom...">
+      <div id="autocomplete-list" class="autocomplete-list"></div>
+      <button id="search-button">OK</button>
     </div>
+  </div>
 
-    <div class="section-separator"></div>
-
-    <div class="floorplan-section" id="floorplan-section">
-      <div id="floorplan-container">
-        <div id="floorplan"></div>
-      </div>
+  <div class="floorplan-section" id="floorplan-section">
+    <div id="floorplan-container">
+      <div id="floorplan"></div>
     </div>
   </div>
 

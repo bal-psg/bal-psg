@@ -11,6 +11,7 @@
       padding: 0;
       background-color: #1a1a1a;
       color: #ffffff;
+      min-height: 100vh;
     }
     h1 {
       text-align: center;
@@ -21,13 +22,30 @@
       margin: 0;
       background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     }
+    
+    /* Conteneur principal pour les sections */
+    .main-container {
+      width: 100%;
+    }
+    
     .search-section, .floorplan-section {
       display: none;
       transition: all 0.3s ease-in-out;
+      width: 100%;
+      min-height: calc(100vh - 120px);
     }
+    
     .search-section.active, .floorplan-section.active {
       display: block;
     }
+    
+    .section-separator {
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, #d4af37 50%, transparent 100%);
+      margin: 20px 0;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+    
     .search-container {
       max-width: 400px;
       margin: 50px auto;
@@ -104,8 +122,12 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(220, 20, 60, 0.4);
     }
+    
+
+    
     #floorplan-container {
       width: 100%;
+      height: 100%;
       overflow: auto;
       padding: 20px;
       box-sizing: border-box;
@@ -199,17 +221,21 @@
 <body>
   <h1>Recherche de finissant</h1>
 
-  <div class="search-section active">
-    <div class="search-container">
-      <input type="text" id="search" placeholder="Tapez un nom...">
-      <div id="autocomplete-list" class="autocomplete-list"></div>
-      <button id="search-button">OK</button>
+  <div class="main-container">
+    <div class="search-section active">
+      <div class="search-container">
+        <input type="text" id="search" placeholder="Tapez un nom...">
+        <div id="autocomplete-list" class="autocomplete-list"></div>
+        <button id="search-button">OK</button>
+      </div>
     </div>
-  </div>
 
-  <div class="floorplan-section" id="floorplan-section">
-    <div id="floorplan-container">
-      <div id="floorplan"></div>
+    <div class="section-separator"></div>
+
+    <div class="floorplan-section" id="floorplan-section">
+      <div id="floorplan-container">
+        <div id="floorplan"></div>
+      </div>
     </div>
   </div>
 

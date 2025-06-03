@@ -233,36 +233,60 @@
 
     const floorplan = document.getElementById("floorplan");
     
-    // Premier groupe (côté gauche) - 9x8 = 72 tables
+    // Tables to remove (keeping their original positions empty)
+    const tablesToRemove = [1, 46, 55, 64, 45, 54, 63, 71, 72, 73, 82, 118, 126, 99, 90, 81];
+    
+    // Premier groupe (côté gauche) - 9x8 = 72 positions
     const group1 = document.createElement("div");
     group1.className = "table-group left";
+    let newTableNumber = 1;
+    
     for (let i = 1; i <= 72; i++) {
-      const div = document.createElement("div");
-      div.className = "table";
-      div.textContent = i;
-      div.dataset.tableId = i;
-      group1.appendChild(div);
+      if (tablesToRemove.includes(i)) {
+        // Create empty placeholder to maintain grid position
+        const placeholder = document.createElement("div");
+        placeholder.style.visibility = "hidden";
+        group1.appendChild(placeholder);
+      } else {
+        const div = document.createElement("div");
+        div.className = "table";
+        div.textContent = newTableNumber;
+        div.dataset.tableId = newTableNumber;
+        div.dataset.originalId = i; // Keep track of original position
+        newTableNumber++;
+        group1.appendChild(div);
+      }
     }
     
     // Séparateur visuel
     const separator = document.createElement("div");
     separator.className = "group-separator";
     
-    // Deuxième groupe (côté droit) - 9x6 = 54 tables
+    // Deuxième groupe (côté droit) - 9x6 = 54 positions
     const group2 = document.createElement("div");
     group2.className = "table-group right";
+    
     for (let i = 73; i <= 126; i++) {
-      const div = document.createElement("div");
-      div.className = "table";
-      
-      // Garde les grandes tables disponibles (pour plus tard)
-      if (i >= 120) {
-        div.classList.add("large");
+      if (tablesToRemove.includes(i)) {
+        // Create empty placeholder to maintain grid position
+        const placeholder = document.createElement("div");
+        placeholder.style.visibility = "hidden";
+        group2.appendChild(placeholder);
+      } else {
+        const div = document.createElement("div");
+        div.className = "table";
+        
+        // Garde les grandes tables disponibles (pour plus tard)
+        if (i >= 120) {
+          div.classList.add("large");
+        }
+        
+        div.textContent = newTableNumber;
+        div.dataset.tableId = newTableNumber;
+        div.dataset.originalId = i; // Keep track of original position
+        newTableNumber++;
+        group2.appendChild(div);
       }
-      
-      div.textContent = i;
-      div.dataset.tableId = i;
-      group2.appendChild(div);
     }
     
     floorplan.appendChild(group1);

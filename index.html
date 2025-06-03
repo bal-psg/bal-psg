@@ -115,10 +115,36 @@
       width: 1000px;
       height: auto;
       display: flex;
-      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 50px;
+      margin: 0 auto;
+      justify-content: center;
+    }
+    
+    .table-group {
+      display: grid;
       gap: 10px;
       justify-content: center;
-      margin: 0 auto;
+      width: 450px;
+    }
+    
+    .table-group.left {
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+    }
+    
+    .table-group.right {
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+    }
+    
+    .group-separator {
+      width: 3px;
+      height: 600px;
+      background: linear-gradient(180deg, transparent 0%, #d4af37 20%, #dc143c 50%, #d4af37 80%, transparent 100%);
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+      align-self: stretch;
     }
     .table {
       width: 50px;
@@ -135,9 +161,19 @@
       transition: all 0.3s ease;
       cursor: pointer;
     }
+    
+    .table.large {
+      width: 56px;
+      height: 56px;
+      font-size: 13px;
+    }
     .table:hover {
       transform: scale(1.1);
       box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+    }
+    
+    .table.large:hover {
+      transform: scale(1.08);
     }
     .highlight {
       background: linear-gradient(135deg, #dc143c 0%, #b91c3c 100%) !important;
@@ -147,6 +183,10 @@
       box-shadow: 0 0 20px rgba(220, 20, 60, 0.8) !important;
       transform: scale(1.2) !important;
       animation: pulse 2s infinite;
+    }
+    
+    .highlight.large {
+      transform: scale(1.15) !important;
     }
     
     @keyframes pulse {
@@ -190,13 +230,42 @@
     let data = fallbackData;
 
     const floorplan = document.getElementById("floorplan");
-    for (let i = 1; i <= 115; i++) {
+    
+    // Premier groupe (côté gauche) - 9x8 = 72 tables
+    const group1 = document.createElement("div");
+    group1.className = "table-group left";
+    for (let i = 1; i <= 72; i++) {
       const div = document.createElement("div");
       div.className = "table";
       div.textContent = i;
       div.dataset.tableId = i;
-      floorplan.appendChild(div);
+      group1.appendChild(div);
     }
+    
+    // Séparateur visuel
+    const separator = document.createElement("div");
+    separator.className = "group-separator";
+    
+    // Deuxième groupe (côté droit) - 9x6 = 54 tables
+    const group2 = document.createElement("div");
+    group2.className = "table-group right";
+    for (let i = 73; i <= 126; i++) {
+      const div = document.createElement("div");
+      div.className = "table";
+      
+      // Garde les grandes tables disponibles (pour plus tard)
+      if (i >= 120) {
+        div.classList.add("large");
+      }
+      
+      div.textContent = i;
+      div.dataset.tableId = i;
+      group2.appendChild(div);
+    }
+    
+    floorplan.appendChild(group1);
+    floorplan.appendChild(separator);
+    floorplan.appendChild(group2);
 
     const input = document.getElementById('search');
     const autocompleteList = document.getElementById('autocomplete-list');

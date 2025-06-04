@@ -21,14 +21,14 @@
       margin: 0;
       background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     }
-    .search-section, .floorplan-section {
+    .search-section, .floorplan-section, .config-section {
       display: none;
       transition: all 0.3s ease-in-out;
     }
-    .search-section.active, .floorplan-section.active {
+    .search-section.active, .floorplan-section.active, .config-section.active {
       display: block;
     }
-    .search-container {
+    .search-container, .config-container {
       max-width: 400px;
       margin: 50px auto;
       padding: 30px;
@@ -103,6 +103,13 @@
       background: linear-gradient(135deg, #b91c3c 0%, #dc143c 100%);
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(220, 20, 60, 0.4);
+    }
+    .secondary-button {
+      background: linear-gradient(135deg, #666666 0%, #444444 100%);
+      color: #ffffff;
+    }
+    .secondary-button:hover {
+      background: linear-gradient(135deg, #777777 0%, #555555 100%);
     }
     #floorplan-container {
       width: 100%;
@@ -193,24 +200,107 @@
       transform: scale(1.15) !important;
     }
     
+    .table.config-mode:hover {
+      background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%) !important;
+      transform: scale(1.15);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+    }
+    
     @keyframes pulse {
       0% { box-shadow: 0 0 20px rgba(220, 20, 60, 0.8); }
       50% { box-shadow: 0 0 30px rgba(220, 20, 60, 1); }
       100% { box-shadow: 0 0 20px rgba(220, 20, 60, 0.8); }
+    }
+
+    .confirmation-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .confirmation-content {
+      background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+      padding: 30px;
+      border-radius: 15px;
+      border: 2px solid #d4af37;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(212, 175, 55, 0.3);
+    }
+
+    .confirmation-content h3 {
+      color: #d4af37;
+      margin-bottom: 20px;
+    }
+
+    .confirmation-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .confirmation-buttons button {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+    }
+
+    .button-group button {
+      flex: 1;
+    }
+
+    .config-instruction {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid #d4af37;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px 0;
+      color: #d4af37;
+      font-weight: bold;
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <h1>Recherche de finissant</h1>
 
+  <!-- Section d'accueil -->
   <div class="search-section active">
     <div class="search-container">
       <input type="text" id="search" placeholder="Tapez un nom...">
       <div id="autocomplete-list" class="autocomplete-list"></div>
       <button id="search-button">OK</button>
+      <button id="config-button" class="secondary-button">Configuration</button>
     </div>
   </div>
 
+  <!-- Section de configuration -->
+  <div class="config-section" id="config-section">
+    <div class="config-container">
+      <div id="config-select-graduate">
+        <input type="text" id="config-search" placeholder="Choisir un finissant...">
+        <div id="config-autocomplete-list" class="autocomplete-list"></div>
+        <button id="configure-graduate-button">Configurer ce finissant</button>
+        <button id="back-to-menu-button" class="secondary-button">Retour au menu</button>
+      </div>
+      <div id="config-instruction" class="config-instruction" style="display: none;">
+        Cliquez sur une table pour assigner <strong id="selected-graduate-name"></strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section du plan de tables -->
   <div class="floorplan-section" id="floorplan-section">
     <div id="floorplan-container">
       <div id="floorplan">
@@ -219,435 +309,112 @@
     </div>
   </div>
 
+  <!-- Modal de confirmation -->
+  <div class="confirmation-modal" id="confirmation-modal">
+    <div class="confirmation-content">
+      <h3>Confirmation</h3>
+      <p id="confirmation-text"></p>
+      <div class="confirmation-buttons">
+        <button id="confirm-yes">Oui</button>
+        <button id="confirm-no" class="secondary-button">Non</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-const fallbackData = [
-  { name: "Rosalie Champagne Dion", table: 47 },
-  { name: "Maëly Jalbert", table: 23 },
-  { name: "Julie Gosselin", table: 89 },
-  { name: "Emeraude Fecteau", table: 12 },
-  { name: "Jason Veilleux", table: 76 },
-  { name: "Mélodie Veilleux", table: 34 },
-  { name: "Adam Lebel", table: 91 },
-  { name: "Océanne Morin", table: 55 },
-  { name: "Brittany Paquet", table: 18 },
-  { name: "Justin Grenier", table: 103 },
-  { name: "Isak Goulet", table: 7 },
-  { name: "Justine Fortin", table: 62 },
-  { name: "Myriam Leclerc", table: 28 },
-  { name: "Adam Couture", table: 84 },
-  { name: "Alycia Poulin", table: 41 },
-  { name: "Maéva Philippeau", table: 96 },
-  { name: "Alicia Lessard", table: 13 },
-  { name: "Lidia Gonthier", table: 71 },
-  { name: "Eden Gilbert", table: 39 },
-  { name: "Emmy Begin", table: 107 },
-  { name: "Jessica Thibaudeau", table: 25 },
-  { name: "Clémentine Piret", table: 58 },
-  { name: "Alexandra Lamontagne", table: 82 },
-  { name: "Matt Guenette", table: 16 },
-  { name: "Nathan Beaudoin", table: 94 },
-  { name: "Gabrielle Deblois", table: 33 },
-  { name: "Alexandre Couture", table: 67 },
-  { name: "Carolanne Carrier", table: 4 },
-  { name: "Laura Couture", table: 88 },
-  { name: "Olivia Fortin", table: 51 },
-  { name: "Sarah-Maude Lacasse", table: 29 },
-  { name: "Kassandre Tassé", table: 112 },
-  { name: "Rosemarie Vachon", table: 8 },
-  { name: "Marylou Therrien", table: 75 },
-  { name: "Amy Demers", table: 42 },
-  { name: "Jérome Côté", table: 19 },
-  { name: "Louis-Pierre Doyon", table: 86 },
-  { name: "Lorie Boissonneault", table: 53 },
-  { name: "Solomé Zacheo", table: 31 },
-  { name: "Kaïla Goupil", table: 98 },
-  { name: "Noémie Leclerc", table: 14 },
-  { name: "Medryck Lagrange", table: 77 },
-  { name: "Raphaële Poulin", table: 45 },
-  { name: "Maïté Veilleux", table: 101 },
-  { name: "Julia Blanchette", table: 22 },
-  { name: "Samuel Drouin", table: 69 },
-  { name: "Kelyna Fecteau", table: 36 },
-  { name: "Laurie-Maude Perreault", table: 93 },
-  { name: "Rosalie Bélanger", table: 6 },
-  { name: "Mathieu Veilleux", table: 80 },
-  { name: "Emy-Rose Poulin", table: 48 },
-  { name: "Élodie Poulin", table: 15 },
-  { name: "Noémie Poulin", table: 72 },
-  { name: "Julianne Lachance", table: 59 },
-  { name: "Alyssa Lachance", table: 26 },
-  { name: "Alexim Mathieu", table: 85 },
-  { name: "Florence Rhéaume", table: 3 },
-  { name: "Mégane Bernard", table: 90 },
-  { name: "Samuel Robert", table: 37 },
-  { name: "Jade-Ellie Pomerleau Poulin", table: 64 },
-  { name: "Jacob Bilodeau", table: 11 },
-  { name: "Jacob Couture", table: 78 },
-  { name: "Marc-Antoine Genesse", table: 44 },
-  { name: "Coralie Maheux", table: 100 },
-  { name: "Juliette Parenteau", table: 21 },
-  { name: "Sébastien Busque", table: 87 },
-  { name: "Angelyck Bélanger Boucher", table: 54 },
-  { name: "Jade Mercier", table: 30 },
-  { name: "Justin Labonte", table: 97 },
-  { name: "Patrick-Olivier Bernier", table: 17 },
-  { name: "Mélyane Vachon", table: 73 },
-  { name: "Leila Boutin", table: 40 },
-  { name: "Jezebel Lambert", table: 106 },
-  { name: "Sarah-Maude Brassard", table: 27 },
-  { name: "Saffira Vandenbroeke", table: 83 },
-  { name: "Edward Fortin", table: 50 },
-  { name: "Maé Viau", table: 9 },
-  { name: "Kelyanne Quirion", table: 66 },
-  { name: "Charles Lavallée", table: 35 },
-  { name: "Thomas Pinard", table: 92 },
-  { name: "Lucas Bouleaux", table: 24 },
-  { name: "Philip-Eliott Couture", table: 79 },
-  { name: "Olivia Bouchard", table: 46 },
-  { name: "Alexis Vachon", table: 104 },
-  { name: "Félix Lessard", table: 20 },
-  { name: "Mahée Patry", table: 68 },
-  { name: "Léonard Toulouse", table: 38 },
-  { name: "Emerick Fournier", table: 95 },
-  { name: "Maïka Carrier", table: 1 },
-  { name: "Félix-Antoine Paré", table: 81 },
-  { name: "Justin Lessard", table: 52 },
-  { name: "Laurie-Ann Cloutier", table: 32 },
-  { name: "Élaina Leblond", table: 99 },
-  { name: "Alexandre Gagnon", table: 10 },
-  { name: "Zachary Roy", table: 65 },
-  { name: "Élyane Paulin", table: 43 },
-  { name: "Anaïs Vachon", table: 108 },
-  { name: "Emile Marois", table: 5 },
-  { name: "Émyle Coulombe", table: 74 },
-  { name: "Olivier Gagné", table: 49 },
-  { name: "Cédric Parent", table: 111 },
-  { name: "Emma-Rose Vachon", table: 56 },
-  { name: "Vincent Fortin", table: 2 },
-  { name: "Éli Bégin", table: 70 },
-  { name: "Gabrielle Jacques", table: 61 },
-  { name: "Olivier Veilleux", table: 113 },
-  { name: "Louis-David Leclerc", table: 57 },
-  { name: "Jacob Fortin", table: 102 },
-  { name: "Anna-Ève Rancourt", table: 60 },
-  { name: "Alexis Drouin", table: 105 },
-  { name: "Jenny-Lee Daigle", table: 63 },
-  { name: "Madyson Parent", table: 109 },
-  { name: "Julia Parent", table: 110 },
-  { name: "Stacy Couture", table: 87 },
-  { name: "Nathan Bougie", table: 12 },
-  { name: "Jolyann Lessard", table: 46 },
-  { name: "Charly Lessard", table: 73 },
-  { name: "Mégane Côté", table: 29 },
-  { name: "Émerick Boutin", table: 84 },
-  { name: "Antoine Toulouse", table: 51 },
-  { name: "Laurence Bilodeau", table: 18 },
-  { name: "Thomas-Olivier Gaulin", table: 95 },
-  { name: "Laura Poulin", table: 32 },
-  { name: "Julia Bureau", table: 78 },
-  { name: "Élyana Roy", table: 55 },
-  { name: "Ann-Sophie Lavoie", table: 9 },
-  { name: "Lora-Kate Bernard", table: 66 },
-  { name: "Olivia Demers", table: 103 },
-  { name: "Félicie Delisle-Richard", table: 40 },
-  { name: "Maude Frenette", table: 77 },
-  { name: "Michael Brochu", table: 14 },
-  { name: "Benjamin Ladouceur", table: 91 },
-  { name: "Emma-Rose Pellerin", table: 28 },
-  { name: "Léa Parent Mercier", table: 65 },
-  { name: "Océane Jacques", table: 102 },
-  { name: "Antoine Bernard", table: 39 },
-  { name: "Laura Ménard", table: 76 },
-  { name: "Nathan Gaulin", table: 13 },
-  { name: "Loïc Doyon", table: 50 },
-  { name: "Nathan Laflamme", table: 87 },
-  { name: "Thomas Gilbert", table: 24 },
-  { name: "Ariane Maheux", table: 61 },
-  { name: "Eve Marie Desmarais", table: 98 },
-  { name: "Laura-Jeanne Caron", table: 35 },
-  { name: "Yan-Philippe Cayer", table: 72 },
-  { name: "Laurie Fortin", table: 109 },
-  { name: "Anne-Sophie Gaboury", table: 46 },
-  { name: "Samuel Ouellet", table: 83 },
-  { name: "Mathis Roche", table: 20 },
-  { name: "Camille Maheux", table: 57 },
-  { name: "Félix Pépin", table: 94 },
-  { name: "Elizabeth Roy", table: 31 },
-  { name: "Salomé Champion", table: 68 },
-  { name: "Alexis Poulin", table: 5 },
-  { name: "Alycia Fluet", table: 42 },
-  { name: "Océane Dostie", table: 79 },
-  { name: "Adam Jolit", table: 16 },
-  { name: "Jasmyne Cloutier", table: 53 },
-  { name: "Elianne Goulet", table: 90 },
-  { name: "Olivia Giguère Morin", table: 27 },
-  { name: "Dominic Gilbert", table: 64 },
-  { name: "Emrika Gagné", table: 1 },
-  { name: "Nicolas Blais", table: 38 },
-  { name: "Catherine Rodrigue", table: 75 },
-  { name: "Aaron Frappier", table: 112 },
-  { name: "Daphnée Larouche", table: 49 },
-  { name: "Leah Michaud", table: 86 },
-  { name: "Eve-Marie Longchamps", table: 23 },
-  { name: "Malix Siméon", table: 60 },
-  { name: "Emile Soulières", table: 97 },
-  { name: "Sheldon Gagné", table: 34 },
-  { name: "Cathianne Veilleux", table: 71 },
-  { name: "Léa-Maude Rousseau", table: 8 },
-  { name: "Éliane Veilleux", table: 45 },
-  { name: "Rose Laquerre", table: 82 },
-  { name: "Karen Nicol Ramírez Vargas", table: 19 },
-  { name: "Taïna Bernard", table: 56 },
-  { name: "Jodin Combate-Perez", table: 93 },
-  { name: "Antoine Rolland", table: 30 },
-  { name: "Gabriel Turgeon", table: 67 },
-  { name: "Faërie Simard", table: 4 },
-  { name: "Émily Baron", table: 41 },
-  { name: "Justin Beaudoin", table: 78 },
-  { name: "Antoine Ouellet", table: 15 },
-  { name: "Élodie Bernard", table: 52 },
-  { name: "Kelly McCollough-Lessard", table: 89 },
-  { name: "William Thibodeau", table: 26 },
-  { name: "Maya Mathieu", table: 63 },
-  { name: "Laura-Lee Poulin", table: 100 },
-  { name: "Samuel Morissette", table: 37 },
-  { name: "Jade Antoine", table: 74 },
-  { name: "Zachary Émond", table: 11 },
-  { name: "Felicia Lessard", table: 48 },
-  { name: "Kellya Vachon", table: 85 },
-  { name: "Sara-Jane Turgeon", table: 22 },
-  { name: "Tchad Morin", table: 59 },
-  { name: "Thomas Beaudoin", table: 96 },
-  { name: "Océane Sarrazin", table: 33 },
-  { name: "Rosemary Carrier", table: 70 },
-  { name: "Roxane Lebrun", table: 7 },
-  { name: "Alexandra Bérubé", table: 44 },
-  { name: "Xavier Lessard", table: 81 },
-  { name: "Marie-Ève Boutin", table: 18 },
-  { name: "Léa-Maude Fortin", table: 55 },
-  { name: "Alexis Maheu", table: 92 },
-  { name: "Philip Drouin", table: 29 },
-  { name: "Elody Bougie", table: 66 },
-  { name: "Laurie Drouin", table: 3 },
-  { name: "Mathieu Gareau", table: 40 },
-  { name: "Nathan Golay", table: 77 },
-  { name: "Alexie Dion", table: 14 },
-  { name: "David Guillermo Arévalo Calderón", table: 51 },
-  { name: "Cloé St-Pierre", table: 88 },
-  { name: "Léonie Fecteau", table: 25 },
-  { name: "Sarah Giroux", table: 62 },
-  { name: "Eliot Gagné", table: 99 },
-  { name: "Louis-Philippe Poulin", table: 36 },
-  { name: "Cora-Lee McGuigan", table: 73 },
-  { name: "Anaïs Lachance", table: 10 },
-  { name: "Mia Dutil", table: 47 },
-  { name: "Tristan Lessard Bellerose", table: 84 },
-  { name: "Aleck Laplante", table: 21 },
-  { name: "Louis-Thomas Maheux", table: 58 },
-  { name: "Marc-Antoine Gareau", table: 95 },
-  { name: "Drew Tanguay", table: 32 },
-  { name: "Léa-Maude Veilleux", table: 69 },
-  { name: "Amélia Gagnon", table: 6 },
-  { name: "Lily-Rose Giguère", table: 43 },
-  { name: "Maéva Dupuis", table: 80 },
-  { name: "Raphaëlle Parent", table: 17 },
-  { name: "Brenden Côté", table: 54 },
-  { name: "Alexandra Audet", table: 91 },
-  { name: "Alexandre Paquet", table: 28 },
-  { name: "Benjamin Dallaire", table: 65 },
-  { name: "Maïka Bourgon", table: 2 },
-  { name: "Ariane Fortin", table: 39 },
-  { name: "Alexia Poulin", table: 76 },
-  { name: "Louis-Philippe Drouin", table: 113 },
-  { name: "Matthias Stellio", table: 50 },
-  { name: "Mavrik Maisonneuve", table: 87 },
-  { name: "Jacob Bédard", table: 24 },
-  { name: "Jessica Poulin", table: 61 }
-];
+    // Données de secours en cas d'erreur de lecture du fichier
+    const fallbackData = [
+      { name: "Rosalie Champagne Dion", table: null },
+      { name: "Maëly Jalbert", table: null },
+      { name: "Julie Gosselin", table: null }
+    ];
 
     let data = fallbackData;
+    let isConfigMode = false;
+    let selectedGraduate = null;
+    let graduateTableAssignments = {}; // Stockage permanent des assignations
+
+    // Charger les données depuis le fichier finissants.txt
+    async function loadGraduateData() {
+      try {
+        const fileContent = await window.fs.readFile('finissants.txt', { encoding: 'utf8' });
+        const lines = fileContent.trim().split('\n');
+        data = lines.map(line => ({ 
+          name: line.trim(), 
+          table: graduateTableAssignments[line.trim()] || null 
+        }));
+      } catch (error) {
+        console.log('Fichier finissants.txt non trouvé, utilisation des données de secours');
+        data = fallbackData.map(item => ({
+          ...item,
+          table: graduateTableAssignments[item.name] || null
+        }));
+      }
+    }
+
+    // Sauvegarder les assignations (simulation - en réalité, cela devrait être sauvé sur serveur)
+    function saveAssignments() {
+      localStorage.setItem('graduateTableAssignments', JSON.stringify(graduateTableAssignments));
+    }
+
+    // Charger les assignations sauvegardées
+    function loadAssignments() {
+      const saved = localStorage.getItem('graduateTableAssignments');
+      if (saved) {
+        graduateTableAssignments = JSON.parse(saved);
+      }
+    }
 
     const floorplan = document.getElementById("floorplan");
     
-    // Tables to remove (keeping their original positions empty)
-    //const tablesToRemove = [1, 46, 55, 64, 45, 54, 63, 71, 72, 73, 82, 83, 92, 122, 123, 130, 131, 132];
     const tablesToRemove = [];
     
-    // All table positions - matching their original grid positions (56px spacing)
+    // Positions des tables (conservées de l'original)
     const tablePositions = {
-      // LEFT SIDE - 9x8 grid (positions 1-72)
-      
-      // Row 1
-      2: { x: 56, y: 0 },   // Col 2
-      3: { x: 112, y: 0 },  // Col 3
-      4: { x: 168, y: 0 },  // Col 4
-      5: { x: 224, y: 0 },  // Col 5
-      6: { x: 280, y: 0 },  // Col 6
-      7: { x: 336, y: 0 },  // Col 7
-      8: { x: 392, y: 0 },  // Col 8
-      9: { x: 448, y: 10 },  // Col 9 (large)
-      
-      // Row 2
-      10: { x: 0, y: 56 },   // Col 1
-      11: { x: 56, y: 56 },  // Col 2
-      12: { x: 112, y: 56 }, // Col 3
-      13: { x: 168, y: 56 }, // Col 4
-      14: { x: 224, y: 56 }, // Col 5
-      15: { x: 280, y: 56 }, // Col 6
-      16: { x: 336, y: 56 }, // Col 7
-      17: { x: 392, y: 56 }, // Col 8
-      18: { x: 448, y: 70 }, // Col 9 (large)
-      
-      // Row 3
-      19: { x: 0, y: 112 },   // Col 1
-      20: { x: 56, y: 112 },  // Col 2
-      21: { x: 112, y: 112 }, // Col 3
-      22: { x: 168, y: 112 }, // Col 4
-      23: { x: 224, y: 112 }, // Col 5
-      24: { x: 280, y: 112 }, // Col 6
-      25: { x: 336, y: 112 }, // Col 7
-      26: { x: 392, y: 112 }, // Col 8
-      27: { x: 448, y: 130 }, // Col 9 (large)
-      
-      // Row 4
-      28: { x: 0, y: 168 },   // Col 1
-      29: { x: 56, y: 168 },  // Col 2
-      30: { x: 112, y: 168 }, // Col 3
-      31: { x: 168, y: 168 }, // Col 4
-      32: { x: 224, y: 168 }, // Col 5
-      33: { x: 280, y: 168 }, // Col 6
-      34: { x: 336, y: 168 }, // Col 7
-      35: { x: 392, y: 168 }, // Col 8
-      36: { x: 448, y: 190 }, // Col 9 (large)
-      
-      // Row 5
-      37: { x: 0, y: 224 },   // Col 1
-      38: { x: 56, y: 224 },  // Col 2
-      39: { x: 112, y: 224 }, // Col 3
-      40: { x: 168, y: 224 }, // Col 4
-      41: { x: 224, y: 224 }, // Col 5
-      42: { x: 280, y: 224 }, // Col 6
-      43: { x: 336, y: 224 }, // Col 7
-      44: { x: 392, y: 224 }, // Col 8
-      // 45 removed
-      
-      // Row 6
-      47: { x: 56, y: 280 },  // Col 2
-      48: { x: 112, y: 280 }, // Col 3
-      49: { x: 168, y: 280 }, // Col 4
-      50: { x: 224, y: 280 }, // Col 5
-      51: { x: 280, y: 280 }, // Col 6
-      52: { x: 336, y: 280 }, // Col 7
-      53: { x: 392, y: 280 }, // Col 8
-      // 54 removed
-      
-      // Row 7
-      //56: { x: 0, y: 336 },   // Col 1
-      57: { x: 56, y: 336 },  // Col 2
-      58: { x: 112, y: 336 }, // Col 3
-      59: { x: 168, y: 336 }, // Col 4
-      60: { x: 224, y: 336 }, // Col 5
-      61: { x: 280, y: 336 }, // Col 6
-      62: { x: 336, y: 336 }, // Col 7
-      63: { x: 392, y: 336 }, // Col 8
-      // 63 removed
-      
-      // Row 8
-      //65: { x: 448, y: 336 }, // Col 9 (large)
-      //66: { x: 0, y: 392 },   // Col 1 (large)
-      67: { x: 64, y: 392 },  // Col 2 (large)
-      68: { x: 128, y: 392 }, // Col 3 (large)
-      69: { x: 192, y: 392 }, // Col 4 (large)
-      70: { x: 256, y: 392 }, // Col 5 (large)
-      71: { x: 324, y: 392 }, // Col 9 (large)
-      72: { x: 386, y: 392 }, // Col 9 (large)
-      // 71, 72 removed
-      
-      
-      // RIGHT SIDE - 10x6 grid (positions 73-132) - X coordinates reduced by 600
-      
-      // Row 1
-      74: { x: -544, y: 0 },     // Col 2 (shifted right by 1)
-      75: { x: -488, y: 0 },     // Col 3 (shifted right by 1)
-      76: { x: -432, y: 0 },     // Col 4 (shifted right by 1)
-      77: { x: -376, y: 0 },     // Col 5 (shifted right by 1)
-      78: { x: -320, y: 0 },     // Col 6 (shifted right by 1)
-      79: { x: -264, y: 0 },     // Col 7 (shifted right by 1)
-      80: { x: -208, y: 0 },     // Col 8 (large) (shifted right by 1)
-      81: { x: -152, y: 0 },     // Col 9 (large) (shifted right by 1)
-      // 82, 83 removed
-      
-      // Row 2
-      84: { x: -544, y: 56 },    // Col 1 (was 0)
-      85: { x: -488, y: 56 },    // Col 2 (was 56)
-      86: { x: -432, y: 56 },    // Col 3 (was 112)
-      87: { x: -376, y: 56 },    // Col 4 (was 168)
-      88: { x: -320, y: 56 },    // Col 5 (was 224)
-      89: { x: -264, y: 68 },    // Col 6 (large) (was 280)
-      90: { x: -206, y: 68 },    // Col 7 (large) (was 336)
-      91: { x: -148, y: 68 },    // Col 8 (large) (was 392)
-      // 92 removed
-      
-      // Row 3
-      93: { x: -600, y: 80 },   // Col 1 (large) (was 0)
-      94: { x: -544, y: 112 },   // Col 2 (was 56)
-      95: { x: -488, y: 112 },   // Col 3 (was 112)
-      96: { x: -432, y: 112 },   // Col 4 (was 168)
-      97: { x: -376, y: 112 },   // Col 5 (was 224)
-      98: { x: -320, y: 112 },   // Col 6 (was 280)
-      99: { x: -264, y: 140 },   // Col 7 (large) (was 336)
-      100: { x: -206, y: 140 }, // Col 8 (large) (was 392)
-      101: { x: -148, y: 140 }, // Col 9 (large) (was 448)
-      102: { x: -90, y: 140 },  // Col 10 (large) (was 504)
-      
-      // Row 4
-      103: { x: -600, y: 140 },   // Col 1 (large) (was 0)
-      104: { x: -544, y: 168 },   // Col 2 (was 56)
-      105: { x: -488, y: 168 },   // Col 3 (was 112)
-      106: { x: -432, y: 168 },   // Col 4 (was 168)
-      107: { x: -376, y: 168 },   // Col 5 (was 224)
-      108: { x: -320, y: 168 },   // Col 6 (was 280)
-      109: { x: -264, y: 208 },   // Col 7 (large) (was 336)
-      110: { x: -206, y: 208 },   // Col 8 (large) (was 392)
-      111: { x: -148, y: 208 },   // Col 9 (large) (was 448)
-      112: { x: -90, y: 208 },    // Col 10 (large) (was 504)
-      
-      // Row 5
-      113: { x: -600, y: 200 },   // Col 1 (large) (was 0)
-      114: { x: -544, y: 224 },   // Col 2 (was 56)
-      115: { x: -488, y: 224 },   // Col 3 (was 112)
-      116: { x: -432, y: 224 },   // Col 4 (was 168)
-      117: { x: -376, y: 224 },   // Col 5 (was 224)
-      118: { x: -320, y: 224 },   // Col 6 (was 280)
-      //119: { x: -264, y: 224 },   // Col 7 (was 336)
-      120: { x: -208, y: 272 },   // Col 8 (large) (was 392)
-      121: { x: -148, y: 272 },   // Col 9 (large) (was 448)
-      // 122, 123 removed
-      
-      // Row 6
-      124: { x: -544, y: 280 },   // Col 1 (was 0)
-      125: { x: -488, y: 280 },   // Col 2 (was 56)
-      126: { x: -432, y: 280 },   // Col 3 (was 112)
-      127: { x: -376, y: 280 },   // Col 4 (was 168)
-      128: { x: -320, y: 280 },   // Col 5 (was 224)
-      129: { x: -264, y: 280 }    // Col 6 (was 280)
-      // 130, 131, 132 removed
+      2: { x: 56, y: 0 },   3: { x: 112, y: 0 },  4: { x: 168, y: 0 },  5: { x: 224, y: 0 },
+      6: { x: 280, y: 0 },  7: { x: 336, y: 0 },  8: { x: 392, y: 0 },  9: { x: 448, y: 10 },
+      10: { x: 0, y: 56 },   11: { x: 56, y: 56 },  12: { x: 112, y: 56 }, 13: { x: 168, y: 56 },
+      14: { x: 224, y: 56 }, 15: { x: 280, y: 56 }, 16: { x: 336, y: 56 }, 17: { x: 392, y: 56 },
+      18: { x: 448, y: 70 }, 19: { x: 0, y: 112 },   20: { x: 56, y: 112 },  21: { x: 112, y: 112 },
+      22: { x: 168, y: 112 }, 23: { x: 224, y: 112 }, 24: { x: 280, y: 112 }, 25: { x: 336, y: 112 },
+      26: { x: 392, y: 112 }, 27: { x: 448, y: 130 }, 28: { x: 0, y: 168 },   29: { x: 56, y: 168 },
+      30: { x: 112, y: 168 }, 31: { x: 168, y: 168 }, 32: { x: 224, y: 168 }, 33: { x: 280, y: 168 },
+      34: { x: 336, y: 168 }, 35: { x: 392, y: 168 }, 36: { x: 448, y: 190 }, 37: { x: 0, y: 224 },
+      38: { x: 56, y: 224 },  39: { x: 112, y: 224 }, 40: { x: 168, y: 224 }, 41: { x: 224, y: 224 },
+      42: { x: 280, y: 224 }, 43: { x: 336, y: 224 }, 44: { x: 392, y: 224 }, 47: { x: 56, y: 280 },
+      48: { x: 112, y: 280 }, 49: { x: 168, y: 280 }, 50: { x: 224, y: 280 }, 51: { x: 280, y: 280 },
+      52: { x: 336, y: 280 }, 53: { x: 392, y: 280 }, 57: { x: 56, y: 336 },  58: { x: 112, y: 336 },
+      59: { x: 168, y: 336 }, 60: { x: 224, y: 336 }, 61: { x: 280, y: 336 }, 62: { x: 336, y: 336 },
+      63: { x: 392, y: 336 }, 67: { x: 64, y: 392 },  68: { x: 128, y: 392 }, 69: { x: 192, y: 392 },
+      70: { x: 256, y: 392 }, 71: { x: 324, y: 392 }, 72: { x: 386, y: 392 },
+      74: { x: -544, y: 0 },     75: { x: -488, y: 0 },     76: { x: -432, y: 0 },     77: { x: -376, y: 0 },
+      78: { x: -320, y: 0 },     79: { x: -264, y: 0 },     80: { x: -208, y: 0 },     81: { x: -152, y: 0 },
+      84: { x: -544, y: 56 },    85: { x: -488, y: 56 },    86: { x: -432, y: 56 },    87: { x: -376, y: 56 },
+      88: { x: -320, y: 56 },    89: { x: -264, y: 68 },    90: { x: -206, y: 68 },    91: { x: -148, y: 68 },
+      93: { x: -600, y: 80 },   94: { x: -544, y: 112 },   95: { x: -488, y: 112 },   96: { x: -432, y: 112 },
+      97: { x: -376, y: 112 },   98: { x: -320, y: 112 },   99: { x: -264, y: 140 },   100: { x: -206, y: 140 },
+      101: { x: -148, y: 140 }, 102: { x: -90, y: 140 },  103: { x: -600, y: 140 },   104: { x: -544, y: 168 },
+      105: { x: -488, y: 168 },   106: { x: -432, y: 168 },   107: { x: -376, y: 168 },   108: { x: -320, y: 168 },
+      109: { x: -264, y: 208 },   110: { x: -206, y: 208 },   111: { x: -148, y: 208 },   112: { x: -90, y: 208 },
+      113: { x: -600, y: 200 },   114: { x: -544, y: 224 },   115: { x: -488, y: 224 },   116: { x: -432, y: 224 },
+      117: { x: -376, y: 224 },   118: { x: -320, y: 224 },   120: { x: -208, y: 272 },   121: { x: -148, y: 272 },
+      124: { x: -544, y: 280 },   125: { x: -488, y: 280 },   126: { x: -432, y: 280 },   127: { x: -376, y: 280 },
+      128: { x: -320, y: 280 },   129: { x: -264, y: 280 }
     };
     
-    // Create left section
+    // Créer les sections de tables
     const leftSection = document.createElement("div");
     leftSection.className = "table-section left";
     
-    // Create right section
     const rightSection = document.createElement("div");
     rightSection.className = "table-section right";
     
     let newTableNumber = 1;
     
-    // Create all tables with absolute positioning
+    // Créer toutes les tables
     for (let i = 1; i <= 132; i++) {
       if (tablesToRemove.includes(i)) {
-        continue; // Skip removed tables
+        continue;
       }
       
       if (tablePositions[i]) {
@@ -659,7 +426,6 @@ const fallbackData = [
           div.classList.add("large");
         }
 
-        // Position the table
         div.style.left = tablePositions[i].x + "px";
         div.style.top = tablePositions[i].y + "px";
 
@@ -667,7 +433,13 @@ const fallbackData = [
         div.dataset.tableId = newTableNumber;
         div.dataset.originalId = i;
 
-        // Add to appropriate section
+        // Ajouter le gestionnaire de clic pour le mode configuration
+        div.addEventListener('click', () => {
+          if (isConfigMode && selectedGraduate) {
+            showConfirmation(selectedGraduate, newTableNumber);
+          }
+        });
+
         if (i <= 72) {
           leftSection.appendChild(div);
         } else {
@@ -681,50 +453,170 @@ const fallbackData = [
     floorplan.appendChild(leftSection);
     floorplan.appendChild(rightSection);
 
+    // Éléments DOM
     const input = document.getElementById('search');
     const autocompleteList = document.getElementById('autocomplete-list');
     const searchButton = document.getElementById('search-button');
+    const configButton = document.getElementById('config-button');
+    const configSection = document.getElementById('config-section');
+    const configSearch = document.getElementById('config-search');
+    const configAutocompleteList = document.getElementById('config-autocomplete-list');
+    const configureGraduateButton = document.getElementById('configure-graduate-button');
+    const backToMenuButton = document.getElementById('back-to-menu-button');
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const confirmationText = document.getElementById('confirmation-text');
+    const confirmYes = document.getElementById('confirm-yes');
+    const confirmNo = document.getElementById('confirm-no');
 
-    input.addEventListener('input', () => {
-      const value = input.value.toLowerCase();
-      autocompleteList.innerHTML = '';
-      if (!value) return;
+    // Fonction d'autocomplétion générique
+    function setupAutocomplete(inputEl, listEl, callback) {
+      inputEl.addEventListener('input', () => {
+        const value = inputEl.value.toLowerCase();
+        listEl.innerHTML = '';
+        if (!value) return;
 
-      const filtered = data.filter(entry => entry.name.toLowerCase().includes(value));
-      filtered.forEach(entry => {
-        const item = document.createElement('div');
-        item.className = 'autocomplete-item';
-        item.textContent = entry.name;
-        item.addEventListener('click', () => {
-          input.value = entry.name;
-          autocompleteList.innerHTML = '';
+        const filtered = data.filter(entry => entry.name.toLowerCase().includes(value));
+        filtered.forEach(entry => {
+          const item = document.createElement('div');
+          item.className = 'autocomplete-item';
+          item.textContent = entry.name;
+          item.addEventListener('click', () => {
+            inputEl.value = entry.name;
+            listEl.innerHTML = '';
+            if (callback) callback(entry);
+          });
+          listEl.appendChild(item);
         });
-        autocompleteList.appendChild(item);
       });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest(inputEl.parentElement)) {
+          listEl.innerHTML = '';
+        }
+      });
+    }
+
+    // Configuration de l'autocomplétion pour la recherche principale
+    setupAutocomplete(input, autocompleteList);
+
+    // Configuration de l'autocomplétion pour la configuration
+    setupAutocomplete(configSearch, configAutocompleteList, (entry) => {
+      selectedGraduate = entry.name;
     });
 
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.search-container')) {
-        autocompleteList.innerHTML = '';
-      }
-    });
-
+    // Bouton de recherche principal
     searchButton.addEventListener('click', () => {
       const name = input.value;
       const match = data.find(entry => entry.name === name);
 
-      // Reset highlight
       document.querySelectorAll('.table').forEach(div => div.classList.remove('highlight'));
 
-      if (match) {
+      if (match && match.table) {
         const tableEl = document.querySelector(`.table[data-table-id="${match.table}"]`);
         if (tableEl) tableEl.classList.add('highlight');
 
-        // Toggle display
         document.querySelector('.search-section').classList.remove('active');
         document.getElementById('floorplan-section').classList.add('active');
+      } else if (match) {
+        alert('Ce finissant n\'a pas encore de table assignée.');
       }
     });
+
+    // Bouton de configuration
+    configButton.addEventListener('click', () => {
+      document.querySelector('.search-section').classList.remove('active');
+      configSection.classList.add('active');
+    });
+
+    // Bouton pour configurer un finissant
+    configureGraduateButton.addEventListener('click', () => {
+      if (!selectedGraduate) {
+        alert('Veuillez sélectionner un finissant.');
+        return;
+      }
+
+      isConfigMode = true;
+      document.getElementById('selected-graduate-name').textContent = selectedGraduate;
+      document.getElementById('config-select-graduate').style.display = 'none';
+      document.getElementById('config-instruction').style.display = 'block';
+      
+      // Activer le mode configuration sur les tables
+      document.querySelectorAll('.table').forEach(table => {
+        table.classList.add('config-mode');
+      });
+
+      configSection.classList.remove('active');
+      document.getElementById('floorplan-section').classList.add('active');
+    });
+
+    // Bouton retour au menu
+    backToMenuButton.addEventListener('click', () => {
+      resetConfigMode();
+      configSection.classList.remove('active');
+      document.querySelector('.search-section').classList.add('active');
+    });
+
+    // Fonction pour afficher la confirmation
+    function showConfirmation(graduateName, tableNumber) {
+      confirmationText.textContent = `Assigner ${graduateName} à la table ${tableNumber} ?`;
+      confirmationModal.style.display = 'flex';
+    }
+
+    // Confirmation Oui
+    confirmYes.addEventListener('click', () => {
+      const tableNumber = parseInt(confirmationText.textContent.match(/table (\d+)/)[1]);
+      
+      // Supprimer l'ancienne assignation si elle existe
+      Object.keys(graduateTableAssignments).forEach(name => {
+        if (graduateTableAssignments[name] === tableNumber) {
+          delete graduateTableAssignments[name];
+        }
+      });
+
+      // Ajouter la nouvelle assignation
+      graduateTableAssignments[selectedGraduate] = tableNumber;
+      
+      // Mettre à jour les données
+      const graduateEntry = data.find(entry => entry.name === selectedGraduate);
+      if (graduateEntry) {
+        graduateEntry.table = tableNumber;
+      }
+
+      saveAssignments();
+      confirmationModal.style.display = 'none';
+      resetConfigMode();
+      
+      alert(`${selectedGraduate} a été assigné(e) à la table ${tableNumber}.`);
+      
+      // Retour au menu principal
+      document.getElementById('floorplan-section').classList.remove('active');
+      document.querySelector('.search-section').classList.add('active');
+    });
+
+    // Confirmation Non
+    confirmNo.addEventListener('click', () => {
+      confirmationModal.style.display = 'none';
+    });
+
+    // Fonction pour réinitialiser le mode configuration
+    function resetConfigMode() {
+      isConfigMode = false;
+      selectedGraduate = null;
+      configSearch.value = '';
+      document.getElementById('config-select-graduate').style.display = 'block';
+      document.getElementById('config-instruction').style.display = 'none';
+      document.querySelectorAll('.table').forEach(table => {
+        table.classList.remove('config-mode');
+      });
+    }
+
+    // Initialisation
+    async function init() {
+      loadAssignments();
+      await loadGraduateData();
+    }
+
+    init();
   </script>
 </body>
 </html>

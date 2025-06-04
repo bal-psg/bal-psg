@@ -277,17 +277,26 @@
         // Essayer de charger le fichier JSON
         const response = await fetch('./data.json');
         if (response.ok) {
-          const jsonData = await response.json();
-          data = jsonData;
-          isDataLoaded = true;
-          showStatus('Données chargées avec succès!', 'success');
-          console.log('Données chargées:', data.length, 'entrées');
+          const text = await response.text();
+          console.log('Contenu du fichier:', text.substring(0, 200) + '...');
+          
+          try {
+            const jsonData = JSON.parse(text);
+            data = jsonData;
+            isDataLoaded = true;
+            showStatus('Données chargées avec succès!', 'success');
+            console.log('Données chargées:', data.length, 'entrées');
+          } catch (parseError) {
+            console.error('Erreur de parsing JSON:', parseError);
+            console.error('Contenu problématique:', text);
+            throw new Error('Format JSON invalide: ' + parseError.message);
+          }
         } else {
-          throw new Error('Fichier non trouvé');
+          throw new Error('Fichier non trouvé (status: ' + response.status + ')');
         }
       } catch (error) {
-        console.warn('Impossible de charger data.json, utilisation des données de fallback:', error);
-        showStatus('Utilisation des données de démonstration', 'error');
+        console.warn('Impossible de charger data.json:', error);
+        showStatus('Erreur: ' + error.message, 'error');
         
         // Essayer d'autres noms de fichiers possibles
         const possibleFiles = ['finissants.json', 'students.json', 'participants.json'];

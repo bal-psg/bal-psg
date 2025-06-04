@@ -104,6 +104,24 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(220, 20, 60, 0.4);
     }
+    .error-message {
+      color: #dc143c;
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px;
+      background-color: rgba(220, 20, 60, 0.1);
+      border-radius: 8px;
+      border: 1px solid #dc143c;
+    }
+    .loading-message {
+      color: #d4af37;
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px;
+      background-color: rgba(212, 175, 55, 0.1);
+      border-radius: 8px;
+      border: 1px solid #d4af37;
+    }
     #floorplan-container {
       width: 100%;
       overflow: auto;
@@ -112,50 +130,51 @@
       background-color: #1a1a1a;
     }
     #floorplan {
-      width: 1000px;
-      height: auto;
-      display: flex;
-      align-items: flex-start;
-      gap: 50px;
+      width: 1400px;
+      height: 500px;
+      position: relative;
       margin: 0 auto;
-      justify-content: center;
+      background: rgba(45, 45, 45, 0.1);
+      border-radius: 10px;
     }
     
-    .table-group {
-      display: grid;
-      gap: 10px;
-      justify-content: center;
-      width: 450px;
+    .table-section {
+      position: absolute;
     }
     
-    .table-group.left {
-      grid-template-columns: repeat(9, 1fr);
-      grid-template-rows: repeat(8, 1fr);
+    .table-section.left {
+      left: 50px;
+      top: 50px;
     }
     
-    .table-group.right {
-      grid-template-columns: repeat(9, 1fr);
-      grid-template-rows: repeat(6, 1fr);
+    .table-section.right {
+      right: 50px;
+      top: 50px;
     }
     
     .group-separator {
+      position: absolute;
+      left: 50%;
+      top: 50px;
+      transform: translateX(-50%);
       width: 3px;
-      height: 600px;
+      height: 400px;
       background: linear-gradient(180deg, transparent 0%, #d4af37 20%, #dc143c 50%, #d4af37 80%, transparent 100%);
       border-radius: 2px;
       box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-      align-self: stretch;
     }
+    
     .table {
-      width: 50px;
-      height: 50px;
+      position: absolute;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
       background: linear-gradient(135deg, #333333 0%, #2d2d2d 100%);
       border: 2px solid #d4af37;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       color: #d4af37;
       transition: all 0.3s ease;
@@ -163,10 +182,12 @@
     }
     
     .table.large {
-      width: 56px;
-      height: 56px;
-      font-size: 13px;
+      width: 52px;
+      height: 52px;
+      font-size: 12px;
+      background: linear-gradient(135deg, #141414 0%, #2d2d2d 100%);
     }
+    
     .table:hover {
       transform: scale(1.1);
       box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
@@ -175,13 +196,14 @@
     .table.large:hover {
       transform: scale(1.08);
     }
+    
     .highlight {
       background: linear-gradient(135deg, #dc143c 0%, #b91c3c 100%) !important;
       color: #d4af37 !important;
       font-weight: bold;
       border-color: #d4af37 !important;
       box-shadow: 0 0 20px rgba(220, 20, 60, 0.8) !important;
-      transform: scale(1.2) !important;
+      transform: scale(1.1) !important;
       animation: pulse 2s infinite;
     }
     
@@ -194,44 +216,6 @@
       50% { box-shadow: 0 0 30px rgba(220, 20, 60, 1); }
       100% { box-shadow: 0 0 20px rgba(220, 20, 60, 0.8); }
     }
-
-    .back-button {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      padding: 10px 20px;
-      background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
-      color: #1a1a1a;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      z-index: 1000;
-    }
-
-    .back-button:hover {
-      background: linear-gradient(135deg, #b8941f 0%, #d4af37 100%);
-    }
-
-    .status-message {
-      text-align: center;
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: 5px;
-      display: none;
-    }
-
-    .status-message.error {
-      background-color: #dc143c;
-      color: white;
-      display: block;
-    }
-
-    .status-message.success {
-      background-color: #28a745;
-      color: white;
-      display: block;
-    }
   </style>
 </head>
 <body>
@@ -242,151 +226,283 @@
       <input type="text" id="search" placeholder="Tapez un nom...">
       <div id="autocomplete-list" class="autocomplete-list"></div>
       <button id="search-button">OK</button>
-      <div id="status-message" class="status-message"></div>
+      <div id="status-message"></div>
     </div>
   </div>
 
   <div class="floorplan-section" id="floorplan-section">
-    <button class="back-button" id="back-button">← Retour</button>
     <div id="floorplan-container">
-      <div id="floorplan"></div>
+      <div id="floorplan">
+        <!--div class="group-separator"></div-->
+      </div>
     </div>
   </div>
 
   <script>
-    // Données de fallback au cas où le fichier ne charge pas
+    // Fallback data in case JSON loading fails
     const fallbackData = [
-      { name: "Alex Tremblay", table: 1 },
-      { name: "Camille Gagnon", table: 2 },
-      { name: "Léa Roy", table: 3 },
-      { name: "Julien Bouchard", table: 4 },
-      { name: "Émile Morin", table: 5 },
-      { name: "Noémie Gauthier", table: 6 },
-      { name: "Maxime Lévesque", table: 7 },
-      { name: "Chloé Côté", table: 8 },
-      { name: "Lucas Fortin", table: 9 },
-      { name: "Sophie Beaulieu", table: 10 }
+      { "name": "Rosalie Champagne Dion", "table": 47 },
+      { "name": "Maëly Jalbert", "table": 23 },
+      { "name": "Julie Gosselin", "table": 89 },
+      { "name": "Emeraude Fecteau", "table": 12 }
     ];
 
-    let data = fallbackData;
+    let data = [];
     let isDataLoaded = false;
 
-    // Fonction pour charger les données
+    // Function to load data from JSON file
     async function loadData() {
+      const statusMessage = document.getElementById('status-message');
+      statusMessage.innerHTML = '<div class="loading-message">Chargement des données...</div>';
+      
       try {
-        // Essayer de charger le fichier JSON
-        const response = await fetch('./data.json');
-        if (response.ok) {
-          const text = await response.text();
-          console.log('Contenu du fichier:', text.substring(0, 200) + '...');
-          
-          try {
-            const jsonData = JSON.parse(text);
-            data = jsonData;
-            isDataLoaded = true;
-            showStatus('Données chargées avec succès!', 'success');
-            console.log('Données chargées:', data.length, 'entrées');
-          } catch (parseError) {
-            console.error('Erreur de parsing JSON:', parseError);
-            console.error('Contenu problématique:', text);
-            throw new Error('Format JSON invalide: ' + parseError.message);
-          }
-        } else {
-          throw new Error('Fichier non trouvé (status: ' + response.status + ')');
+        const response = await fetch('data.json');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const jsonData = await response.json();
+        
+        // Validate data format
+        if (!Array.isArray(jsonData)) {
+          throw new Error('Le fichier data.json doit contenir un tableau');
+        }
+        
+        // Validate each entry
+        for (let i = 0; i < jsonData.length; i++) {
+          const entry = jsonData[i];
+          if (!entry.name || typeof entry.name !== 'string' || 
+              !entry.table || typeof entry.table !== 'number') {
+            throw new Error(`Entrée invalide à l'index ${i}: chaque entrée doit avoir "name" (string) et "table" (number)`);
+          }
+        }
+        
+        data = jsonData;
+        statusMessage.innerHTML = '';
+        isDataLoaded = true;
+        console.log(`Données chargées avec succès: ${data.length} finissants`);
+        
       } catch (error) {
-        console.warn('Impossible de charger data.json:', error);
-        showStatus('Erreur: ' + error.message, 'error');
-        
-        // Essayer d'autres noms de fichiers possibles
-        const possibleFiles = ['finissants.json', 'students.json', 'participants.json'];
-        
-        for (const filename of possibleFiles) {
-          try {
-            const response = await fetch(`./${filename}`);
-            if (response.ok) {
-              const jsonData = await response.json();
-              data = jsonData;
-              isDataLoaded = true;
-              showStatus(`Données chargées depuis ${filename}!`, 'success');
-              console.log('Données chargées depuis', filename, ':', data.length, 'entrées');
-              return;
-            }
-          } catch (e) {
-            console.log(`${filename} non trouvé`);
-          }
-        }
+        console.error('Erreur lors du chargement des données:', error);
+        statusMessage.innerHTML = `<div class="error-message">Erreur: ${error.message}<br>Utilisation des données de démonstration.</div>`;
+        data = fallbackData;
+        isDataLoaded = true;
       }
     }
-
-    function showStatus(message, type) {
-      const statusEl = document.getElementById('status-message');
-      statusEl.textContent = message;
-      statusEl.className = `status-message ${type}`;
-      
-      setTimeout(() => {
-        statusEl.style.display = 'none';
-      }, 3000);
-    }
-
-    // Charger les données au démarrage
-    loadData();
 
     const floorplan = document.getElementById("floorplan");
     
-    // Premier groupe (côté gauche) - 9x8 = 72 tables
-    const group1 = document.createElement("div");
-    group1.className = "table-group left";
-    for (let i = 1; i <= 72; i++) {
-      const div = document.createElement("div");
-      div.className = "table";
-      div.textContent = i;
-      div.dataset.tableId = i;
-      group1.appendChild(div);
-    }
+    // Tables to remove (keeping their original positions empty)
+    const tablesToRemove = [];
     
-    // Séparateur visuel
-    const separator = document.createElement("div");
-    separator.className = "group-separator";
-    
-    // Deuxième groupe (côté droit) - 9x6 = 54 tables
-    const group2 = document.createElement("div");
-    group2.className = "table-group right";
-    for (let i = 73; i <= 126; i++) {
-      const div = document.createElement("div");
-      div.className = "table";
+    // All table positions - matching their original grid positions (56px spacing)
+    const tablePositions = {
+      // LEFT SIDE - 9x8 grid (positions 1-72)
       
-      // Garde les grandes tables disponibles (pour plus tard)
-      if (i >= 120) {
-        div.classList.add("large");
+      // Row 1
+      2: { x: 56, y: 0 },   // Col 2
+      3: { x: 112, y: 0 },  // Col 3
+      4: { x: 168, y: 0 },  // Col 4
+      5: { x: 224, y: 0 },  // Col 5
+      6: { x: 280, y: 0 },  // Col 6
+      7: { x: 336, y: 0 },  // Col 7
+      8: { x: 392, y: 0 },  // Col 8
+      9: { x: 448, y: 10 },  // Col 9 (large)
+      
+      // Row 2
+      10: { x: 0, y: 56 },   // Col 1
+      11: { x: 56, y: 56 },  // Col 2
+      12: { x: 112, y: 56 }, // Col 3
+      13: { x: 168, y: 56 }, // Col 4
+      14: { x: 224, y: 56 }, // Col 5
+      15: { x: 280, y: 56 }, // Col 6
+      16: { x: 336, y: 56 }, // Col 7
+      17: { x: 392, y: 56 }, // Col 8
+      18: { x: 448, y: 70 }, // Col 9 (large)
+      
+      // Row 3
+      19: { x: 0, y: 112 },   // Col 1
+      20: { x: 56, y: 112 },  // Col 2
+      21: { x: 112, y: 112 }, // Col 3
+      22: { x: 168, y: 112 }, // Col 4
+      23: { x: 224, y: 112 }, // Col 5
+      24: { x: 280, y: 112 }, // Col 6
+      25: { x: 336, y: 112 }, // Col 7
+      26: { x: 392, y: 112 }, // Col 8
+      27: { x: 448, y: 130 }, // Col 9 (large)
+      
+      // Row 4
+      28: { x: 0, y: 168 },   // Col 1
+      29: { x: 56, y: 168 },  // Col 2
+      30: { x: 112, y: 168 }, // Col 3
+      31: { x: 168, y: 168 }, // Col 4
+      32: { x: 224, y: 168 }, // Col 5
+      33: { x: 280, y: 168 }, // Col 6
+      34: { x: 336, y: 168 }, // Col 7
+      35: { x: 392, y: 168 }, // Col 8
+      36: { x: 448, y: 190 }, // Col 9 (large)
+      
+      // Row 5
+      37: { x: 0, y: 224 },   // Col 1
+      38: { x: 56, y: 224 },  // Col 2
+      39: { x: 112, y: 224 }, // Col 3
+      40: { x: 168, y: 224 }, // Col 4
+      41: { x: 224, y: 224 }, // Col 5
+      42: { x: 280, y: 224 }, // Col 6
+      43: { x: 336, y: 224 }, // Col 7
+      44: { x: 392, y: 224 }, // Col 8
+      
+      // Row 6
+      47: { x: 56, y: 280 },  // Col 2
+      48: { x: 112, y: 280 }, // Col 3
+      49: { x: 168, y: 280 }, // Col 4
+      50: { x: 224, y: 280 }, // Col 5
+      51: { x: 280, y: 280 }, // Col 6
+      52: { x: 336, y: 280 }, // Col 7
+      53: { x: 392, y: 280 }, // Col 8
+      
+      // Row 7
+      57: { x: 56, y: 336 },  // Col 2
+      58: { x: 112, y: 336 }, // Col 3
+      59: { x: 168, y: 336 }, // Col 4
+      60: { x: 224, y: 336 }, // Col 5
+      61: { x: 280, y: 336 }, // Col 6
+      62: { x: 336, y: 336 }, // Col 7
+      63: { x: 392, y: 336 }, // Col 8
+      
+      // Row 8
+      67: { x: 64, y: 392 },  // Col 2 (large)
+      68: { x: 128, y: 392 }, // Col 3 (large)
+      69: { x: 192, y: 392 }, // Col 4 (large)
+      70: { x: 256, y: 392 }, // Col 5 (large)
+      71: { x: 324, y: 392 }, // Col 9 (large)
+      72: { x: 386, y: 392 }, // Col 9 (large)
+      
+      // RIGHT SIDE - 10x6 grid (positions 73-132) - X coordinates reduced by 600
+      
+      // Row 1
+      74: { x: -544, y: 0 },     // Col 2 (shifted right by 1)
+      75: { x: -488, y: 0 },     // Col 3 (shifted right by 1)
+      76: { x: -432, y: 0 },     // Col 4 (shifted right by 1)
+      77: { x: -376, y: 0 },     // Col 5 (shifted right by 1)
+      78: { x: -320, y: 0 },     // Col 6 (shifted right by 1)
+      79: { x: -264, y: 0 },     // Col 7 (shifted right by 1)
+      80: { x: -208, y: 0 },     // Col 8 (large) (shifted right by 1)
+      81: { x: -152, y: 0 },     // Col 9 (large) (shifted right by 1)
+      
+      // Row 2
+      84: { x: -544, y: 56 },    // Col 1 (was 0)
+      85: { x: -488, y: 56 },    // Col 2 (was 56)
+      86: { x: -432, y: 56 },    // Col 3 (was 112)
+      87: { x: -376, y: 56 },    // Col 4 (was 168)
+      88: { x: -320, y: 56 },    // Col 5 (was 224)
+      89: { x: -264, y: 68 },    // Col 6 (large) (was 280)
+      90: { x: -206, y: 68 },    // Col 7 (large) (was 336)
+      91: { x: -148, y: 68 },    // Col 8 (large) (was 392)
+      
+      // Row 3
+      93: { x: -600, y: 80 },   // Col 1 (large) (was 0)
+      94: { x: -544, y: 112 },   // Col 2 (was 56)
+      95: { x: -488, y: 112 },   // Col 3 (was 112)
+      96: { x: -432, y: 112 },   // Col 4 (was 168)
+      97: { x: -376, y: 112 },   // Col 5 (was 224)
+      98: { x: -320, y: 112 },   // Col 6 (was 280)
+      99: { x: -264, y: 140 },   // Col 7 (large) (was 336)
+      100: { x: -206, y: 140 }, // Col 8 (large) (was 392)
+      101: { x: -148, y: 140 }, // Col 9 (large) (was 448)
+      102: { x: -90, y: 140 },  // Col 10 (large) (was 504)
+      
+      // Row 4
+      103: { x: -600, y: 140 },   // Col 1 (large) (was 0)
+      104: { x: -544, y: 168 },   // Col 2 (was 56)
+      105: { x: -488, y: 168 },   // Col 3 (was 112)
+      106: { x: -432, y: 168 },   // Col 4 (was 168)
+      107: { x: -376, y: 168 },   // Col 5 (was 224)
+      108: { x: -320, y: 168 },   // Col 6 (was 280)
+      109: { x: -264, y: 208 },   // Col 7 (large) (was 336)
+      110: { x: -206, y: 208 },   // Col 8 (large) (was 392)
+      111: { x: -148, y: 208 },   // Col 9 (large) (was 448)
+      112: { x: -90, y: 208 },    // Col 10 (large) (was 504)
+      
+      // Row 5
+      113: { x: -600, y: 200 },   // Col 1 (large) (was 0)
+      114: { x: -544, y: 224 },   // Col 2 (was 56)
+      115: { x: -488, y: 224 },   // Col 3 (was 112)
+      116: { x: -432, y: 224 },   // Col 4 (was 168)
+      117: { x: -376, y: 224 },   // Col 5 (was 224)
+      118: { x: -320, y: 224 },   // Col 6 (was 280)
+      120: { x: -208, y: 272 },   // Col 8 (large) (was 392)
+      121: { x: -148, y: 272 },   // Col 9 (large) (was 448)
+      
+      // Row 6
+      124: { x: -544, y: 280 },   // Col 1 (was 0)
+      125: { x: -488, y: 280 },   // Col 2 (was 56)
+      126: { x: -432, y: 280 },   // Col 3 (was 112)
+      127: { x: -376, y: 280 },   // Col 4 (was 168)
+      128: { x: -320, y: 280 },   // Col 5 (was 224)
+      129: { x: -264, y: 280 }    // Col 6 (was 280)
+    };
+    
+    // Create left section
+    const leftSection = document.createElement("div");
+    leftSection.className = "table-section left";
+    
+    // Create right section
+    const rightSection = document.createElement("div");
+    rightSection.className = "table-section right";
+    
+    let newTableNumber = 1;
+    
+    // Create all tables with absolute positioning
+    for (let i = 1; i <= 132; i++) {
+      if (tablesToRemove.includes(i)) {
+        continue; // Skip removed tables
       }
       
-      div.textContent = i;
-      div.dataset.tableId = i;
-      group2.appendChild(div);
+      if (tablePositions[i]) {
+        const div = document.createElement("div");
+        div.className = "table";
+
+        const largeTables = [9, 18, 27, 36, 65, 66, 67, 68, 69, 70, 71, 72, 80, 81, 89, 90, 91, 93, 99, 100, 101, 102, 103, 109, 110, 111, 112, 113, 120, 121];
+        if (largeTables.includes(i)) {
+          div.classList.add("large");
+        }
+
+        // Position the table
+        div.style.left = tablePositions[i].x + "px";
+        div.style.top = tablePositions[i].y + "px";
+
+        div.textContent = newTableNumber;
+        div.dataset.tableId = newTableNumber;
+        div.dataset.originalId = i;
+
+        // Add to appropriate section
+        if (i <= 72) {
+          leftSection.appendChild(div);
+        } else {
+          rightSection.appendChild(div);
+        }
+
+        newTableNumber++;
+      }
     }
     
-    floorplan.appendChild(group1);
-    floorplan.appendChild(separator);
-    floorplan.appendChild(group2);
+    floorplan.appendChild(leftSection);
+    floorplan.appendChild(rightSection);
 
     const input = document.getElementById('search');
     const autocompleteList = document.getElementById('autocomplete-list');
     const searchButton = document.getElementById('search-button');
-    const backButton = document.getElementById('back-button');
 
-    // Gestionnaire pour l'autocomplétion
+    // Event listeners for autocomplete
     input.addEventListener('input', () => {
-      const value = input.value.toLowerCase().trim();
-      autocompleteList.innerHTML = '';
+      if (!isDataLoaded) return;
       
+      const value = input.value.toLowerCase();
+      autocompleteList.innerHTML = '';
       if (!value) return;
 
-      const filtered = data.filter(entry => 
-        entry.name && entry.name.toLowerCase().includes(value)
-      );
-      
-      filtered.slice(0, 10).forEach(entry => { // Limiter à 10 résultats
+      const filtered = data.filter(entry => entry.name.toLowerCase().includes(value));
+      filtered.forEach(entry => {
         const item = document.createElement('div');
         item.className = 'autocomplete-item';
         item.textContent = entry.name;
@@ -398,37 +514,21 @@
       });
     });
 
-    // Gestionnaire pour fermer l'autocomplétion quand on clique ailleurs
     document.addEventListener('click', (e) => {
-      // CORRECTION: Vérifier que e.target existe avant d'utiliser closest
-      if (e.target && !e.target.closest('.search-container')) {
+      if (!e.target.closest('.search-container')) {
         autocompleteList.innerHTML = '';
       }
     });
 
-    // Gestionnaire pour la recherche
+    // Search functionality
     searchButton.addEventListener('click', () => {
-      performSearch();
-    });
-
-    // Permettre la recherche avec Enter
-    input.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        performSearch();
-      }
-    });
-
-    function performSearch() {
-      const name = input.value.trim();
-      
-      if (!name) {
-        showStatus('Veuillez entrer un nom', 'error');
+      if (!isDataLoaded) {
+        alert('Les données ne sont pas encore chargées. Veuillez patienter.');
         return;
       }
-
-      const match = data.find(entry => 
-        entry.name && entry.name.toLowerCase() === name.toLowerCase()
-      );
+      
+      const name = input.value;
+      const match = data.find(entry => entry.name === name);
 
       // Reset highlight
       document.querySelectorAll('.table').forEach(div => div.classList.remove('highlight'));
@@ -438,39 +538,26 @@
         if (tableEl) {
           tableEl.classList.add('highlight');
           
-          // Scroll vers la table si nécessaire
-          setTimeout(() => {
-            tableEl.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center' 
-            });
-          }, 300);
+          // Toggle display
+          document.querySelector('.search-section').classList.remove('active');
+          document.getElementById('floorplan-section').classList.add('active');
+        } else {
+          alert(`Table ${match.table} non trouvée dans le plan.`);
         }
-
-        // Basculer vers la vue du plan
-        document.querySelector('.search-section').classList.remove('active');
-        document.getElementById('floorplan-section').classList.add('active');
       } else {
-        showStatus('Nom non trouvé', 'error');
+        alert('Nom non trouvé dans la liste.');
       }
-    }
-
-    // Gestionnaire pour le bouton retour
-    backButton.addEventListener('click', () => {
-      document.getElementById('floorplan-section').classList.remove('active');
-      document.querySelector('.search-section').classList.add('active');
-      
-      // Reset highlight
-      document.querySelectorAll('.table').forEach(div => div.classList.remove('highlight'));
-      
-      // Clear input
-      input.value = '';
-      autocompleteList.innerHTML = '';
     });
 
-    // Log pour debugging
-    console.log('Application initialisée');
-    console.log('Données disponibles:', data.length, 'entrées');
+    // Enable Enter key for search
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchButton.click();
+      }
+    });
+
+    // Load data when page loads
+    document.addEventListener('DOMContentLoaded', loadData);
   </script>
 </body>
 </html>

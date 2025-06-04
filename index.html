@@ -21,14 +21,14 @@
       margin: 0;
       background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     }
-    .search-section, .floorplan-section, .config-section {
+    .search-section, .floorplan-section {
       display: none;
       transition: all 0.3s ease-in-out;
     }
-    .search-section.active, .floorplan-section.active, .config-section.active {
+    .search-section.active, .floorplan-section.active {
       display: block;
     }
-    .search-container, .config-container {
+    .search-container {
       max-width: 400px;
       margin: 50px auto;
       padding: 30px;
@@ -104,13 +104,6 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(220, 20, 60, 0.4);
     }
-    .secondary-button {
-      background: linear-gradient(135deg, #666666 0%, #444444 100%);
-      color: #ffffff;
-    }
-    .secondary-button:hover {
-      background: linear-gradient(135deg, #777777 0%, #555555 100%);
-    }
     #floorplan-container {
       width: 100%;
       overflow: auto;
@@ -119,51 +112,50 @@
       background-color: #1a1a1a;
     }
     #floorplan {
-      width: 1400px;
-      height: 500px;
-      position: relative;
+      width: 1000px;
+      height: auto;
+      display: flex;
+      align-items: flex-start;
+      gap: 50px;
       margin: 0 auto;
-      background: rgba(45, 45, 45, 0.1);
-      border-radius: 10px;
+      justify-content: center;
     }
     
-    .table-section {
-      position: absolute;
+    .table-group {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+      width: 450px;
     }
     
-    .table-section.left {
-      left: 50px;
-      top: 50px;
+    .table-group.left {
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(8, 1fr);
     }
     
-    .table-section.right {
-      right: 50px;
-      top: 50px;
+    .table-group.right {
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(6, 1fr);
     }
     
     .group-separator {
-      position: absolute;
-      left: 50%;
-      top: 50px;
-      transform: translateX(-50%);
       width: 3px;
-      height: 400px;
+      height: 600px;
       background: linear-gradient(180deg, transparent 0%, #d4af37 20%, #dc143c 50%, #d4af37 80%, transparent 100%);
       border-radius: 2px;
       box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+      align-self: stretch;
     }
-    
     .table {
-      position: absolute;
-      width: 46px;
-      height: 46px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       background: linear-gradient(135deg, #333333 0%, #2d2d2d 100%);
       border: 2px solid #d4af37;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: bold;
       color: #d4af37;
       transition: all 0.3s ease;
@@ -171,12 +163,10 @@
     }
     
     .table.large {
-      width: 52px;
-      height: 52px;
-      font-size: 12px;
-      background: linear-gradient(135deg, #141414 0%, #2d2d2d 100%);
+      width: 56px;
+      height: 56px;
+      font-size: 13px;
     }
-    
     .table:hover {
       transform: scale(1.1);
       box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
@@ -185,25 +175,18 @@
     .table.large:hover {
       transform: scale(1.08);
     }
-    
     .highlight {
       background: linear-gradient(135deg, #dc143c 0%, #b91c3c 100%) !important;
       color: #d4af37 !important;
       font-weight: bold;
       border-color: #d4af37 !important;
       box-shadow: 0 0 20px rgba(220, 20, 60, 0.8) !important;
-      transform: scale(1.1) !important;
+      transform: scale(1.2) !important;
       animation: pulse 2s infinite;
     }
     
     .highlight.large {
       transform: scale(1.15) !important;
-    }
-    
-    .table.config-mode:hover {
-      background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%) !important;
-      transform: scale(1.15);
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
     }
     
     @keyframes pulse {
@@ -212,411 +195,273 @@
       100% { box-shadow: 0 0 20px rgba(220, 20, 60, 0.8); }
     }
 
-    .confirmation-modal {
+    .back-button {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      justify-content: center;
-      align-items: center;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+      color: #1a1a1a;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
       z-index: 1000;
     }
 
-    .confirmation-content {
-      background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-      padding: 30px;
-      border-radius: 15px;
-      border: 2px solid #d4af37;
+    .back-button:hover {
+      background: linear-gradient(135deg, #b8941f 0%, #d4af37 100%);
+    }
+
+    .status-message {
       text-align: center;
-      max-width: 400px;
-      box-shadow: 0 8px 32px rgba(212, 175, 55, 0.3);
-    }
-
-    .confirmation-content h3 {
-      color: #d4af37;
-      margin-bottom: 20px;
-    }
-
-    .confirmation-buttons {
-      display: flex;
-      gap: 15px;
       margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
     }
 
-    .confirmation-buttons button {
-      flex: 1;
-      margin-top: 0;
+    .status-message.error {
+      background-color: #dc143c;
+      color: white;
+      display: block;
     }
 
-    .button-group {
-      display: flex;
-      gap: 15px;
-    }
-
-    .button-group button {
-      flex: 1;
-    }
-
-    .config-instruction {
-      background: rgba(212, 175, 55, 0.1);
-      border: 1px solid #d4af37;
-      border-radius: 8px;
-      padding: 15px;
-      margin: 20px 0;
-      color: #d4af37;
-      font-weight: bold;
-      text-align: center;
+    .status-message.success {
+      background-color: #28a745;
+      color: white;
+      display: block;
     }
   </style>
 </head>
 <body>
   <h1>Recherche de finissant</h1>
 
-  <!-- Section d'accueil -->
   <div class="search-section active">
     <div class="search-container">
       <input type="text" id="search" placeholder="Tapez un nom...">
       <div id="autocomplete-list" class="autocomplete-list"></div>
       <button id="search-button">OK</button>
-      <button id="config-button" class="secondary-button">Configuration</button>
+      <div id="status-message" class="status-message"></div>
     </div>
   </div>
 
-  <!-- Section de configuration -->
-  <div class="config-section" id="config-section">
-    <div class="config-container">
-      <div id="config-select-graduate">
-        <input type="text" id="config-search" placeholder="Choisir un finissant...">
-        <div id="config-autocomplete-list" class="autocomplete-list"></div>
-        <button id="configure-graduate-button">Configurer ce finissant</button>
-        <button id="back-to-menu-button" class="secondary-button">Retour au menu</button>
-      </div>
-      <div id="config-instruction" class="config-instruction" style="display: none;">
-        Cliquez sur une table pour assigner <strong id="selected-graduate-name"></strong>
-      </div>
-    </div>
-  </div>
-
-  <!-- Section du plan de tables -->
   <div class="floorplan-section" id="floorplan-section">
+    <button class="back-button" id="back-button">← Retour</button>
     <div id="floorplan-container">
-      <div id="floorplan">
-        <!--div class="group-separator"></div-->
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de confirmation -->
-  <div class="confirmation-modal" id="confirmation-modal">
-    <div class="confirmation-content">
-      <h3>Confirmation</h3>
-      <p id="confirmation-text"></p>
-      <div class="confirmation-buttons">
-        <button id="confirm-yes">Oui</button>
-        <button id="confirm-no" class="secondary-button">Non</button>
-      </div>
+      <div id="floorplan"></div>
     </div>
   </div>
 
   <script>
-    // Données de secours en cas d'erreur de lecture du fichier
+    // Données de fallback au cas où le fichier ne charge pas
     const fallbackData = [
-      { name: "Rosalie Champagne Dion", table: null },
-      { name: "Maëly Jalbert", table: null },
-      { name: "Julie Gosselin", table: null }
+      { name: "Alex Tremblay", table: 1 },
+      { name: "Camille Gagnon", table: 2 },
+      { name: "Léa Roy", table: 3 },
+      { name: "Julien Bouchard", table: 4 },
+      { name: "Émile Morin", table: 5 },
+      { name: "Noémie Gauthier", table: 6 },
+      { name: "Maxime Lévesque", table: 7 },
+      { name: "Chloé Côté", table: 8 },
+      { name: "Lucas Fortin", table: 9 },
+      { name: "Sophie Beaulieu", table: 10 }
     ];
 
     let data = fallbackData;
-    let isConfigMode = false;
-    let selectedGraduate = null;
-    let graduateTableAssignments = {}; // Stockage permanent des assignations
+    let isDataLoaded = false;
 
-    // Charger les données depuis le fichier finissants.txt
-    async function loadGraduateData() {
+    // Fonction pour charger les données
+    async function loadData() {
       try {
-        const fileContent = await window.fs.readFile('finissants.txt', { encoding: 'utf8' });
-        const lines = fileContent.trim().split('\n');
-        data = lines.map(line => ({ 
-          name: line.trim(), 
-          table: graduateTableAssignments[line.trim()] || null 
-        }));
+        // Essayer de charger le fichier JSON
+        const response = await fetch('./data.json');
+        if (response.ok) {
+          const jsonData = await response.json();
+          data = jsonData;
+          isDataLoaded = true;
+          showStatus('Données chargées avec succès!', 'success');
+          console.log('Données chargées:', data.length, 'entrées');
+        } else {
+          throw new Error('Fichier non trouvé');
+        }
       } catch (error) {
-        console.log('Fichier finissants.txt non trouvé, utilisation des données de secours');
-        data = fallbackData.map(item => ({
-          ...item,
-          table: graduateTableAssignments[item.name] || null
-        }));
+        console.warn('Impossible de charger data.json, utilisation des données de fallback:', error);
+        showStatus('Utilisation des données de démonstration', 'error');
+        
+        // Essayer d'autres noms de fichiers possibles
+        const possibleFiles = ['finissants.json', 'students.json', 'participants.json'];
+        
+        for (const filename of possibleFiles) {
+          try {
+            const response = await fetch(`./${filename}`);
+            if (response.ok) {
+              const jsonData = await response.json();
+              data = jsonData;
+              isDataLoaded = true;
+              showStatus(`Données chargées depuis ${filename}!`, 'success');
+              console.log('Données chargées depuis', filename, ':', data.length, 'entrées');
+              return;
+            }
+          } catch (e) {
+            console.log(`${filename} non trouvé`);
+          }
+        }
       }
     }
 
-    // Sauvegarder les assignations (simulation - en réalité, cela devrait être sauvé sur serveur)
-    function saveAssignments() {
-      localStorage.setItem('graduateTableAssignments', JSON.stringify(graduateTableAssignments));
+    function showStatus(message, type) {
+      const statusEl = document.getElementById('status-message');
+      statusEl.textContent = message;
+      statusEl.className = `status-message ${type}`;
+      
+      setTimeout(() => {
+        statusEl.style.display = 'none';
+      }, 3000);
     }
 
-    // Charger les assignations sauvegardées
-    function loadAssignments() {
-      const saved = localStorage.getItem('graduateTableAssignments');
-      if (saved) {
-        graduateTableAssignments = JSON.parse(saved);
-      }
-    }
+    // Charger les données au démarrage
+    loadData();
 
     const floorplan = document.getElementById("floorplan");
     
-    const tablesToRemove = [];
-    
-    // Positions des tables (conservées de l'original)
-    const tablePositions = {
-      2: { x: 56, y: 0 },   3: { x: 112, y: 0 },  4: { x: 168, y: 0 },  5: { x: 224, y: 0 },
-      6: { x: 280, y: 0 },  7: { x: 336, y: 0 },  8: { x: 392, y: 0 },  9: { x: 448, y: 10 },
-      10: { x: 0, y: 56 },   11: { x: 56, y: 56 },  12: { x: 112, y: 56 }, 13: { x: 168, y: 56 },
-      14: { x: 224, y: 56 }, 15: { x: 280, y: 56 }, 16: { x: 336, y: 56 }, 17: { x: 392, y: 56 },
-      18: { x: 448, y: 70 }, 19: { x: 0, y: 112 },   20: { x: 56, y: 112 },  21: { x: 112, y: 112 },
-      22: { x: 168, y: 112 }, 23: { x: 224, y: 112 }, 24: { x: 280, y: 112 }, 25: { x: 336, y: 112 },
-      26: { x: 392, y: 112 }, 27: { x: 448, y: 130 }, 28: { x: 0, y: 168 },   29: { x: 56, y: 168 },
-      30: { x: 112, y: 168 }, 31: { x: 168, y: 168 }, 32: { x: 224, y: 168 }, 33: { x: 280, y: 168 },
-      34: { x: 336, y: 168 }, 35: { x: 392, y: 168 }, 36: { x: 448, y: 190 }, 37: { x: 0, y: 224 },
-      38: { x: 56, y: 224 },  39: { x: 112, y: 224 }, 40: { x: 168, y: 224 }, 41: { x: 224, y: 224 },
-      42: { x: 280, y: 224 }, 43: { x: 336, y: 224 }, 44: { x: 392, y: 224 }, 47: { x: 56, y: 280 },
-      48: { x: 112, y: 280 }, 49: { x: 168, y: 280 }, 50: { x: 224, y: 280 }, 51: { x: 280, y: 280 },
-      52: { x: 336, y: 280 }, 53: { x: 392, y: 280 }, 57: { x: 56, y: 336 },  58: { x: 112, y: 336 },
-      59: { x: 168, y: 336 }, 60: { x: 224, y: 336 }, 61: { x: 280, y: 336 }, 62: { x: 336, y: 336 },
-      63: { x: 392, y: 336 }, 67: { x: 64, y: 392 },  68: { x: 128, y: 392 }, 69: { x: 192, y: 392 },
-      70: { x: 256, y: 392 }, 71: { x: 324, y: 392 }, 72: { x: 386, y: 392 },
-      74: { x: -544, y: 0 },     75: { x: -488, y: 0 },     76: { x: -432, y: 0 },     77: { x: -376, y: 0 },
-      78: { x: -320, y: 0 },     79: { x: -264, y: 0 },     80: { x: -208, y: 0 },     81: { x: -152, y: 0 },
-      84: { x: -544, y: 56 },    85: { x: -488, y: 56 },    86: { x: -432, y: 56 },    87: { x: -376, y: 56 },
-      88: { x: -320, y: 56 },    89: { x: -264, y: 68 },    90: { x: -206, y: 68 },    91: { x: -148, y: 68 },
-      93: { x: -600, y: 80 },   94: { x: -544, y: 112 },   95: { x: -488, y: 112 },   96: { x: -432, y: 112 },
-      97: { x: -376, y: 112 },   98: { x: -320, y: 112 },   99: { x: -264, y: 140 },   100: { x: -206, y: 140 },
-      101: { x: -148, y: 140 }, 102: { x: -90, y: 140 },  103: { x: -600, y: 140 },   104: { x: -544, y: 168 },
-      105: { x: -488, y: 168 },   106: { x: -432, y: 168 },   107: { x: -376, y: 168 },   108: { x: -320, y: 168 },
-      109: { x: -264, y: 208 },   110: { x: -206, y: 208 },   111: { x: -148, y: 208 },   112: { x: -90, y: 208 },
-      113: { x: -600, y: 200 },   114: { x: -544, y: 224 },   115: { x: -488, y: 224 },   116: { x: -432, y: 224 },
-      117: { x: -376, y: 224 },   118: { x: -320, y: 224 },   120: { x: -208, y: 272 },   121: { x: -148, y: 272 },
-      124: { x: -544, y: 280 },   125: { x: -488, y: 280 },   126: { x: -432, y: 280 },   127: { x: -376, y: 280 },
-      128: { x: -320, y: 280 },   129: { x: -264, y: 280 }
-    };
-    
-    // Créer les sections de tables
-    const leftSection = document.createElement("div");
-    leftSection.className = "table-section left";
-    
-    const rightSection = document.createElement("div");
-    rightSection.className = "table-section right";
-    
-    let newTableNumber = 1;
-    
-    // Créer toutes les tables
-    for (let i = 1; i <= 132; i++) {
-      if (tablesToRemove.includes(i)) {
-        continue;
-      }
-      
-      if (tablePositions[i]) {
-        const div = document.createElement("div");
-        div.className = "table";
-
-        const largeTables = [9, 18, 27, 36, 65, 66, 67, 68, 69, 70, 71, 72, 80, 81, 89, 90, 91, 93, 99, 100, 101, 102, 103, 109, 110, 111, 112, 113, 120, 121];
-        if (largeTables.includes(i)) {
-          div.classList.add("large");
-        }
-
-        div.style.left = tablePositions[i].x + "px";
-        div.style.top = tablePositions[i].y + "px";
-
-        div.textContent = newTableNumber;
-        div.dataset.tableId = newTableNumber;
-        div.dataset.originalId = i;
-
-        // Ajouter le gestionnaire de clic pour le mode configuration
-        div.addEventListener('click', () => {
-          if (isConfigMode && selectedGraduate) {
-            showConfirmation(selectedGraduate, newTableNumber);
-          }
-        });
-
-        if (i <= 72) {
-          leftSection.appendChild(div);
-        } else {
-          rightSection.appendChild(div);
-        }
-
-        newTableNumber++;
-      }
+    // Premier groupe (côté gauche) - 9x8 = 72 tables
+    const group1 = document.createElement("div");
+    group1.className = "table-group left";
+    for (let i = 1; i <= 72; i++) {
+      const div = document.createElement("div");
+      div.className = "table";
+      div.textContent = i;
+      div.dataset.tableId = i;
+      group1.appendChild(div);
     }
     
-    floorplan.appendChild(leftSection);
-    floorplan.appendChild(rightSection);
+    // Séparateur visuel
+    const separator = document.createElement("div");
+    separator.className = "group-separator";
+    
+    // Deuxième groupe (côté droit) - 9x6 = 54 tables
+    const group2 = document.createElement("div");
+    group2.className = "table-group right";
+    for (let i = 73; i <= 126; i++) {
+      const div = document.createElement("div");
+      div.className = "table";
+      
+      // Garde les grandes tables disponibles (pour plus tard)
+      if (i >= 120) {
+        div.classList.add("large");
+      }
+      
+      div.textContent = i;
+      div.dataset.tableId = i;
+      group2.appendChild(div);
+    }
+    
+    floorplan.appendChild(group1);
+    floorplan.appendChild(separator);
+    floorplan.appendChild(group2);
 
-    // Éléments DOM
     const input = document.getElementById('search');
     const autocompleteList = document.getElementById('autocomplete-list');
     const searchButton = document.getElementById('search-button');
-    const configButton = document.getElementById('config-button');
-    const configSection = document.getElementById('config-section');
-    const configSearch = document.getElementById('config-search');
-    const configAutocompleteList = document.getElementById('config-autocomplete-list');
-    const configureGraduateButton = document.getElementById('configure-graduate-button');
-    const backToMenuButton = document.getElementById('back-to-menu-button');
-    const confirmationModal = document.getElementById('confirmation-modal');
-    const confirmationText = document.getElementById('confirmation-text');
-    const confirmYes = document.getElementById('confirm-yes');
-    const confirmNo = document.getElementById('confirm-no');
+    const backButton = document.getElementById('back-button');
 
-    // Fonction d'autocomplétion générique
-    function setupAutocomplete(inputEl, listEl, callback) {
-      inputEl.addEventListener('input', () => {
-        const value = inputEl.value.toLowerCase();
-        listEl.innerHTML = '';
-        if (!value) return;
+    // Gestionnaire pour l'autocomplétion
+    input.addEventListener('input', () => {
+      const value = input.value.toLowerCase().trim();
+      autocompleteList.innerHTML = '';
+      
+      if (!value) return;
 
-        const filtered = data.filter(entry => entry.name.toLowerCase().includes(value));
-        filtered.forEach(entry => {
-          const item = document.createElement('div');
-          item.className = 'autocomplete-item';
-          item.textContent = entry.name;
-          item.addEventListener('click', () => {
-            inputEl.value = entry.name;
-            listEl.innerHTML = '';
-            if (callback) callback(entry);
-          });
-          listEl.appendChild(item);
+      const filtered = data.filter(entry => 
+        entry.name && entry.name.toLowerCase().includes(value)
+      );
+      
+      filtered.slice(0, 10).forEach(entry => { // Limiter à 10 résultats
+        const item = document.createElement('div');
+        item.className = 'autocomplete-item';
+        item.textContent = entry.name;
+        item.addEventListener('click', () => {
+          input.value = entry.name;
+          autocompleteList.innerHTML = '';
         });
+        autocompleteList.appendChild(item);
       });
-
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest(inputEl.parentElement)) {
-          listEl.innerHTML = '';
-        }
-      });
-    }
-
-    // Configuration de l'autocomplétion pour la recherche principale
-    setupAutocomplete(input, autocompleteList);
-
-    // Configuration de l'autocomplétion pour la configuration
-    setupAutocomplete(configSearch, configAutocompleteList, (entry) => {
-      selectedGraduate = entry.name;
     });
 
-    // Bouton de recherche principal
-    searchButton.addEventListener('click', () => {
-      const name = input.value;
-      const match = data.find(entry => entry.name === name);
-
-      document.querySelectorAll('.table').forEach(div => div.classList.remove('highlight'));
-
-      if (match && match.table) {
-        const tableEl = document.querySelector(`.table[data-table-id="${match.table}"]`);
-        if (tableEl) tableEl.classList.add('highlight');
-
-        document.querySelector('.search-section').classList.remove('active');
-        document.getElementById('floorplan-section').classList.add('active');
-      } else if (match) {
-        alert('Ce finissant n\'a pas encore de table assignée.');
+    // Gestionnaire pour fermer l'autocomplétion quand on clique ailleurs
+    document.addEventListener('click', (e) => {
+      // CORRECTION: Vérifier que e.target existe avant d'utiliser closest
+      if (e.target && !e.target.closest('.search-container')) {
+        autocompleteList.innerHTML = '';
       }
     });
 
-    // Bouton de configuration
-    configButton.addEventListener('click', () => {
-      document.querySelector('.search-section').classList.remove('active');
-      configSection.classList.add('active');
+    // Gestionnaire pour la recherche
+    searchButton.addEventListener('click', () => {
+      performSearch();
     });
 
-    // Bouton pour configurer un finissant
-    configureGraduateButton.addEventListener('click', () => {
-      if (!selectedGraduate) {
-        alert('Veuillez sélectionner un finissant.');
+    // Permettre la recherche avec Enter
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        performSearch();
+      }
+    });
+
+    function performSearch() {
+      const name = input.value.trim();
+      
+      if (!name) {
+        showStatus('Veuillez entrer un nom', 'error');
         return;
       }
 
-      isConfigMode = true;
-      document.getElementById('selected-graduate-name').textContent = selectedGraduate;
-      document.getElementById('config-select-graduate').style.display = 'none';
-      document.getElementById('config-instruction').style.display = 'block';
-      
-      // Activer le mode configuration sur les tables
-      document.querySelectorAll('.table').forEach(table => {
-        table.classList.add('config-mode');
-      });
+      const match = data.find(entry => 
+        entry.name && entry.name.toLowerCase() === name.toLowerCase()
+      );
 
-      configSection.classList.remove('active');
-      document.getElementById('floorplan-section').classList.add('active');
-    });
+      // Reset highlight
+      document.querySelectorAll('.table').forEach(div => div.classList.remove('highlight'));
 
-    // Bouton retour au menu
-    backToMenuButton.addEventListener('click', () => {
-      resetConfigMode();
-      configSection.classList.remove('active');
-      document.querySelector('.search-section').classList.add('active');
-    });
+      if (match) {
+        const tableEl = document.querySelector(`.table[data-table-id="${match.table}"]`);
+        if (tableEl) {
+          tableEl.classList.add('highlight');
+          
+          // Scroll vers la table si nécessaire
+          setTimeout(() => {
+            tableEl.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }, 300);
+        }
 
-    // Fonction pour afficher la confirmation
-    function showConfirmation(graduateName, tableNumber) {
-      confirmationText.textContent = `Assigner ${graduateName} à la table ${tableNumber} ?`;
-      confirmationModal.style.display = 'flex';
+        // Basculer vers la vue du plan
+        document.querySelector('.search-section').classList.remove('active');
+        document.getElementById('floorplan-section').classList.add('active');
+      } else {
+        showStatus('Nom non trouvé', 'error');
+      }
     }
 
-    // Confirmation Oui
-    confirmYes.addEventListener('click', () => {
-      const tableNumber = parseInt(confirmationText.textContent.match(/table (\d+)/)[1]);
-      
-      // Supprimer l'ancienne assignation si elle existe
-      Object.keys(graduateTableAssignments).forEach(name => {
-        if (graduateTableAssignments[name] === tableNumber) {
-          delete graduateTableAssignments[name];
-        }
-      });
-
-      // Ajouter la nouvelle assignation
-      graduateTableAssignments[selectedGraduate] = tableNumber;
-      
-      // Mettre à jour les données
-      const graduateEntry = data.find(entry => entry.name === selectedGraduate);
-      if (graduateEntry) {
-        graduateEntry.table = tableNumber;
-      }
-
-      saveAssignments();
-      confirmationModal.style.display = 'none';
-      resetConfigMode();
-      
-      alert(`${selectedGraduate} a été assigné(e) à la table ${tableNumber}.`);
-      
-      // Retour au menu principal
+    // Gestionnaire pour le bouton retour
+    backButton.addEventListener('click', () => {
       document.getElementById('floorplan-section').classList.remove('active');
       document.querySelector('.search-section').classList.add('active');
+      
+      // Reset highlight
+      document.querySelectorAll('.table').forEach(div => div.classList.remove('highlight'));
+      
+      // Clear input
+      input.value = '';
+      autocompleteList.innerHTML = '';
     });
 
-    // Confirmation Non
-    confirmNo.addEventListener('click', () => {
-      confirmationModal.style.display = 'none';
-    });
-
-    // Fonction pour réinitialiser le mode configuration
-    function resetConfigMode() {
-      isConfigMode = false;
-      selectedGraduate = null;
-      configSearch.value = '';
-      document.getElementById('config-select-graduate').style.display = 'block';
-      document.getElementById('config-instruction').style.display = 'none';
-      document.querySelectorAll('.table').forEach(table => {
-        table.classList.remove('config-mode');
-      });
-    }
-
-    // Initialisation
-    async function init() {
-      loadAssignments();
-      await loadGraduateData();
-    }
-
-    init();
+    // Log pour debugging
+    console.log('Application initialisée');
+    console.log('Données disponibles:', data.length, 'entrées');
   </script>
 </body>
 </html>

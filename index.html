@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Recherche de finissant</title>
+  <title>Recherche de table</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -219,7 +219,7 @@
   </style>
 </head>
 <body>
-  <h1>Recherche de finissant</h1>
+  <h1>Recherche de table</h1>
 
   <div class="search-section active">
     <div class="search-container">
@@ -381,7 +381,7 @@
       
       // Row 1
       74: { x: -544, y: 0 },     // Col 2 (shifted right by 1)
-      75: { x: -488, y: 0 },     // Col 3 (shifted right by 1)
+      75: { x: -490, y: 0 },     // Col 3 (shifted right by 1)
       76: { x: -432, y: 0 },     // Col 4 (shifted right by 1)
       77: { x: -376, y: 0 },     // Col 5 (shifted right by 1)
       78: { x: -320, y: 0 },     // Col 6 (shifted right by 1)
@@ -391,55 +391,55 @@
       
       // Row 2
       84: { x: -544, y: 56 },    // Col 1 (was 0)
-      85: { x: -488, y: 56 },    // Col 2 (was 56)
+      85: { x: -490, y: 68 },    // Col 2 (was 56)
       86: { x: -432, y: 56 },    // Col 3 (was 112)
       87: { x: -376, y: 56 },    // Col 4 (was 168)
       88: { x: -320, y: 56 },    // Col 5 (was 224)
       89: { x: -264, y: 68 },    // Col 6 (large) (was 280)
-      90: { x: -206, y: 68 },    // Col 7 (large) (was 336)
+      90: { x: -206, y: 56 },    // Col 7 (large) (was 336)
       91: { x: -148, y: 68 },    // Col 8 (large) (was 392)
       
       // Row 3
       93: { x: -600, y: 80 },   // Col 1 (large) (was 0)
       94: { x: -544, y: 112 },   // Col 2 (was 56)
-      95: { x: -488, y: 112 },   // Col 3 (was 112)
+      95: { x: -490, y: 140 },   // Col 3 (was 112)
       96: { x: -432, y: 112 },   // Col 4 (was 168)
       97: { x: -376, y: 112 },   // Col 5 (was 224)
       98: { x: -320, y: 112 },   // Col 6 (was 280)
       99: { x: -264, y: 140 },   // Col 7 (large) (was 336)
-      100: { x: -206, y: 140 }, // Col 8 (large) (was 392)
+      100: { x: -206, y: 112 }, // Col 8 (large) (was 392)
       101: { x: -148, y: 140 }, // Col 9 (large) (was 448)
       102: { x: -90, y: 140 },  // Col 10 (large) (was 504)
       
       // Row 4
       103: { x: -600, y: 140 },   // Col 1 (large) (was 0)
       104: { x: -544, y: 168 },   // Col 2 (was 56)
-      105: { x: -488, y: 168 },   // Col 3 (was 112)
+      105: { x: -490, y: 208 },   // Col 3 (was 112)
       106: { x: -432, y: 168 },   // Col 4 (was 168)
       107: { x: -376, y: 168 },   // Col 5 (was 224)
       108: { x: -320, y: 168 },   // Col 6 (was 280)
       109: { x: -264, y: 208 },   // Col 7 (large) (was 336)
-      110: { x: -206, y: 208 },   // Col 8 (large) (was 392)
+      110: { x: -206, y: 168 },   // Col 8 (large) (was 392)
       111: { x: -148, y: 208 },   // Col 9 (large) (was 448)
       112: { x: -90, y: 208 },    // Col 10 (large) (was 504)
       
       // Row 5
       113: { x: -600, y: 200 },   // Col 1 (large) (was 0)
       114: { x: -544, y: 224 },   // Col 2 (was 56)
-      115: { x: -488, y: 224 },   // Col 3 (was 112)
+      115: { x: -490, y: 272 },   // Col 3 (was 112)
       116: { x: -432, y: 224 },   // Col 4 (was 168)
       117: { x: -376, y: 224 },   // Col 5 (was 224)
       118: { x: -320, y: 224 },   // Col 6 (was 280)
-      120: { x: -208, y: 272 },   // Col 8 (large) (was 392)
+      120: { x: -206, y: 224 },   // Col 8 (large) (was 392)
       121: { x: -148, y: 272 },   // Col 9 (large) (was 448)
       
       // Row 6
       124: { x: -544, y: 280 },   // Col 1 (was 0)
-      125: { x: -488, y: 280 },   // Col 2 (was 56)
       126: { x: -432, y: 280 },   // Col 3 (was 112)
       127: { x: -376, y: 280 },   // Col 4 (was 168)
       128: { x: -320, y: 280 },   // Col 5 (was 224)
-      129: { x: -264, y: 280 }    // Col 6 (was 280)
+      129: { x: -264, y: 280 },    // Col 6 (was 280)
+      130: { x: -206, y: 280 }    // Col 7
     };
     
     // Create left section
@@ -462,7 +462,7 @@
         const div = document.createElement("div");
         div.className = "table";
 
-        const largeTables = [9, 18, 27, 36, 65, 66, 67, 68, 69, 70, 71, 72, 80, 81, 89, 90, 91, 93, 99, 100, 101, 102, 103, 109, 110, 111, 112, 113, 120, 121];
+        const largeTables = [9, 18, 27, 36, 65, 66, 67, 68, 69, 70, 71, 72, 75, 81, 85, 89, 91, 93, 95, 99, 101, 102, 103, 105, 109, 111, 112, 113, 115, 121];
         if (largeTables.includes(i)) {
           div.classList.add("large");
         }

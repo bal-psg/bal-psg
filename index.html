@@ -337,13 +337,11 @@
   // Create right section
   const rightSection = document.createElement("div");
   rightSection.className = "table-section right";
-  
-  // REMOVED: let newTableNumber = 1; // This variable is no longer needed for display
-  
+ 
   // Create all tables with absolute positioning
   for (let i = 1; i <= 132; i++) {
    if (tablesToRemove.includes(i)) {
-    continue; // Skip removed tables
+    continue; 
    }
    
    if (tablePositions[i]) {
@@ -359,10 +357,8 @@
     div.style.left = tablePositions[i].x + "px";
     div.style.top = tablePositions[i].y + "px";
 
-    // --- CHANGE MADE HERE ---
-    div.textContent = i; // Display the original ID of the table
-    // --- END CHANGE ---
-
+    div.textContent = i; 
+    
     div.dataset.tableId = i; // Ensure data-table-id matches the displayed number for search
     div.dataset.originalId = i;
 
@@ -372,8 +368,6 @@
     } else {
      rightSection.appendChild(div);
     }
-
-    // REMOVED: newTableNumber++; // No longer incrementing a separate display number
    }
   }
   

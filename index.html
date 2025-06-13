@@ -196,7 +196,73 @@
   .table.large:hover {
    transform: scale(1.08);
   }
-  
+
+  .table-rect {
+  position: absolute;
+  width: 58px;
+  height: 36px;
+  border-radius: 6px;
+  background: #2d2d2d;
+  border: 2px solid #d4af37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #d4af37;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shine effect for rectangle tables */
+.table-rect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.table-rect:hover::after {
+  left: 100%;
+}
+
+/* Large rectangle tables */
+.table-rect.large {
+  width: 68px;
+  height: 44px;
+  font-size: 14px;
+}
+
+/* Rectangle table hover effects */
+.table-rect:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+}
+
+.table-rect.large:hover {
+  transform: scale(1.08);
+}
+
+/* Rectangle table highlight */
+.table-rect.highlight {
+  background: linear-gradient(135deg, #dc143c 0%, #b91c3c 100%) !important;
+  color: #d4af37 !important;
+  font-weight: bold;
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 20px rgba(220, 20, 60, 0.8) !important;
+  transform: scale(1.15) !important;
+     animation: pulse 2s infinite;
+   }
+   
+   .table-rect.highlight.large {
+     transform: scale(1.15) !important;
+   }
   .highlight {
    background: linear-gradient(135deg, #dc143c 0%, #b91c3c 100%) !important;
    color: #d4af37 !important;
@@ -347,7 +413,6 @@
    if (tablePositions[i]) {
     const div = document.createElement("div");
     div.className = "table";
-
     const largeTables = [8,17,26,35,58,59,60,61,62,63,65,71,73,77,79,80,82,86,88,89,90,96,98,102,104,105,107,113];
     if (largeTables.includes(i)) {
      div.classList.add("large");
